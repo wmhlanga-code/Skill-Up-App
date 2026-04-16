@@ -16,27 +16,48 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     if (loading) return;
 
     const inAuthGroup = segments[0] === '(auth)';
+    const currentScreen = segments[1] as string | undefined;
 
-    if (!user && !inAuthGroup) {
-      router.replace('/(auth)/login');
-    } else if (user && inAuthGroup) {
-      if (!user.role) {
+    if (!user) {
+      // Not logged in — send to login (but don't loop if already there)
+      if (!inAuthGroup) {
+        router.replace('/(auth)/login');
+      }
+      return;
+    }
+
+    // Logged in but no role set
+    if (!user.role) {
+      // Only navigate if not already on role-select
+      if (currentScreen !== 'role-select') {
         router.replace('/(auth)/role-select');
-      } else if (user.role === 'provider') {
+      }
+      return;
+    }
+
+    // Logged in with role — redirect away from auth screens
+    if (inAuthGroup) {
+      if (user.role === 'provider') {
         router.replace('/(provider)/dashboard');
       } else {
         router.replace('/(tabs)/');
       }
-    } else if (user && !inAuthGroup && !user.role) {
-      router.replace('/(auth)/role-select');
     }
   }, [user, loading, segments]);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F0F7FF', alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color="#2B9EE8" size="large" />
+      </View>
+    );
+  }
 
   return <>{children}</>;
 }
 
 export default function RootLayout() {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const { setTheme } = useStore();
   const [themeReady, setThemeReady] = useState(false);
 
@@ -50,7 +71,7 @@ export default function RootLayout() {
   if (!themeReady) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F0F7FF', alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator color="#2B9EE8" />
+        <ActivityIndicator color="#2B9EE8" size="large" />
       </View>
     );
   }

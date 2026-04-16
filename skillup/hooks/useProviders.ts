@@ -76,16 +76,13 @@ export function useProviderDetail(id: string) {
       setError(null);
 
       try {
+        // Fetch provider, services, reviews in parallel
         const [provRes, svcRes, revRes] = await Promise.all([
-          supabase
-            .from('providers')
-            .select('*, profiles!inner(full_name, phone, avatar_url)')
-            .eq('id', id)
-            .single(),
+          supabase.from('providers').select('*').eq('id', id).single(),
           supabase.from('services').select('*').eq('provider_id', id),
           supabase
             .from('reviews')
-            .select('*, profiles!reviewer_id(full_name, avatar_url)')
+            .select('*')
             .eq('provider_id', id)
             .order('created_at', { ascending: false })
             .limit(20),
@@ -93,18 +90,48 @@ export function useProviderDetail(id: string) {
 
         if (provRes.error) throw provRes.error;
 
-        const raw = provRes.data as Record<string, unknown>;
-        const profileData = raw.profiles as Record<string, unknown> | null;
+        const prov = provRes.data as Provider;
+
+        // Fetch the provider's profile separately (avoids RLS join issue)
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name, phone, avatar_url')
+          .eq('id', prov.user_id)
+          .maybeSingle();
+
         const merged: Provider = {
-          ...(raw as unknown as Provider),
-          full_name: profileData?.full_name as string | null ?? null,
-          phone: profileData?.phone as string | null ?? null,
-          avatar_url: profileData?.avatar_url as string | null ?? null,
+          ...prov,
+          full_name: profileData?.full_name ?? null,
+          phone: profileData?.phone ?? null,
+          avatar_url: profileData?.avatar_url ?? null,
         };
+
+        // Attach reviewer info to each review by fetching profiles
+        const reviews = (revRes.data ?? []) as Review[];
+        const reviewerIds = [...new Set(reviews.map((r) => r.reviewer_id))];
+        let reviewerMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+
+        if (reviewerIds.length > 0) {
+          const { data: reviewerProfiles } = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url')
+            .in('id', reviewerIds);
+
+          if (reviewerProfiles) {
+            reviewerMap = Object.fromEntries(
+              reviewerProfiles.map((p) => [p.id, { full_name: p.full_name, avatar_url: p.avatar_url }])
+            );
+          }
+        }
+
+        const reviewsWithProfiles = reviews.map((r) => ({
+          ...r,
+          reviewer: reviewerMap[r.reviewer_id] ?? null,
+        }));
 
         setProvider(merged);
         setServices((svcRes.data ?? []) as Service[]);
-        setReviews((revRes.data ?? []) as Review[]);
+        setReviews(reviewsWithProfiles as Review[]);
       } catch (err: unknown) {
         setError(
           err instanceof Error ? err.message : 'Failed to load provider'
