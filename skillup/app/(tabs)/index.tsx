@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   RefreshControl,
   StyleSheet,
   SafeAreaView,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
@@ -18,6 +19,7 @@ import { SearchBar } from '../../components/SearchBar';
 import { CategoryChips } from '../../components/CategoryChips';
 import { ProviderCard } from '../../components/ProviderCard';
 import { BusinessCard } from '../../components/BusinessCard';
+import { FilterSheet } from '../../components/FilterSheet';
 import type { NearbyProvider } from '../../types';
 
 function SkeletonCard() {
@@ -45,10 +47,11 @@ export default function HomeScreen() {
   const { colors } = useTheme();
   const { user } = useAuth();
   const { coordinates, locationName, loading: locLoading, refresh: refreshLoc } = useLocation();
-  const { searchQuery, selectedCategory, setSearchQuery, setSelectedCategory } = useStore();
+  const { searchQuery, selectedCategory, setSearchQuery, setSelectedCategory, filters, setFilters } = useStore();
+  const [filterVisible, setFilterVisible] = useState(false);
 
   const {
-    providers,
+    providers: rawProviders,
     loading: providersLoading,
     refresh,
   } = useProviders(
@@ -56,6 +59,20 @@ export default function HomeScreen() {
     coordinates?.longitude ?? null,
     selectedCategory,
     searchQuery
+  );
+
+  // Apply client-side filters
+  const providers = rawProviders.filter((p) => {
+    if (filters.availableOnly && !p.is_available) return false;
+    if (filters.minRating > 0 && p.avg_rating < filters.minRating) return false;
+    if (p.distance_km != null && p.distance_km > filters.maxDistanceKm) return false;
+    return true;
+  });
+
+  const activeFilterCount = (
+    (filters.maxDistanceKm < 50 ? 1 : 0) +
+    (filters.minRating > 0 ? 1 : 0) +
+    (filters.availableOnly ? 1 : 0)
   );
 
   const {
@@ -104,7 +121,29 @@ export default function HomeScreen() {
       </View>
 
       <LocationBar locationName={locationName} loading={locLoading} onRefresh={refreshLoc} />
-      <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
+      <View style={styles.searchRow}>
+        {/* height: 48 clips SearchBar's internal marginBottom so the button stays aligned */}
+        <View style={{ flex: 1, height: 48 }}>
+          <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
+        </View>
+        <TouchableOpacity
+          onPress={() => setFilterVisible(true)}
+          style={[
+            styles.filterBtn,
+            {
+              backgroundColor: activeFilterCount > 0 ? colors.primary : colors.surface,
+              borderColor: activeFilterCount > 0 ? colors.primary : colors.border,
+            },
+          ]}
+        >
+          <Ionicons name="options-outline" size={20} color={activeFilterCount > 0 ? '#fff' : colors.textPrimary} />
+          {activeFilterCount > 0 && (
+            <View style={[styles.filterBadge, { backgroundColor: '#fff' }]}>
+              <Text style={[styles.filterBadgeText, { color: colors.primary }]}>{activeFilterCount}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
       <CategoryChips selected={selectedCategory} onSelect={setSelectedCategory} />
 
       {!isLoading && providers.length > 0 && (
@@ -137,6 +176,12 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
+      <FilterSheet
+        visible={filterVisible}
+        current={filters}
+        onApply={setFilters}
+        onClose={() => setFilterVisible(false)}
+      />
       {isLoading ? (
         <View style={styles.container}>
           {ListHeader}
@@ -193,6 +238,26 @@ const styles = StyleSheet.create({
   title: { fontSize: 30, fontWeight: '900', letterSpacing: -0.5 },
   resultsRow: { marginBottom: 10 },
   sectionLabel: { fontSize: 13, fontWeight: '500' },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  filterBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterBadgeText: { fontSize: 10, fontWeight: '800' },
   businessSection: { marginTop: 8 },
   sectionHeader: {
     flexDirection: 'row',

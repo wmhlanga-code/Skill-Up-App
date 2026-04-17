@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../hooks/useTheme';
@@ -27,13 +28,26 @@ export default function InboxScreen() {
   const [segment, setSegment] = useState<Segment>('requests');
 
   const { bookings, loading: bookLoading, refresh: refreshBookings } = useSeekerBookings(user?.id ?? null);
-  const { conversations, loading: convLoading, refresh: refreshConversations } = useConversations();
+  const { conversations, loading: convLoading, unreadTotal, refresh: refreshConversations } = useConversations();
 
-  const loading = segment === 'requests' ? bookLoading : convLoading;
+  // Refresh conversations every time this tab comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshConversations();
+    }, [refreshConversations])
+  );
+
+  // Auto-switch to Messages segment when there are unread messages
+  React.useEffect(() => {
+    if (unreadTotal > 0 && segment === 'requests') {
+      setSegment('messages');
+    }
+  }, [unreadTotal]);
 
   function switchSegment(s: Segment) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSegment(s);
+    if (s === 'messages') refreshConversations();
   }
 
   async function onRefresh() {
@@ -45,24 +59,31 @@ export default function InboxScreen() {
     <View style={[styles.segmentWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
       {(['requests', 'messages'] as Segment[]).map((s) => {
         const active = segment === s;
+        const showBadge = s === 'messages' && unreadTotal > 0;
         return (
           <TouchableOpacity
             key={s}
             onPress={() => switchSegment(s)}
             activeOpacity={0.85}
-            style={[
-              styles.segmentBtn,
-              active && { backgroundColor: colors.primary },
-            ]}
+            style={[styles.segmentBtn, active && { backgroundColor: colors.primary }]}
           >
             <Ionicons
-              name={s === 'requests' ? (active ? 'calendar' : 'calendar-outline') : (active ? 'chatbubbles' : 'chatbubbles-outline')}
+              name={s === 'requests'
+                ? (active ? 'calendar' : 'calendar-outline')
+                : (active ? 'chatbubbles' : 'chatbubbles-outline')}
               size={15}
               color={active ? '#fff' : colors.textMuted}
             />
             <Text style={[styles.segmentLabel, { color: active ? '#fff' : colors.textMuted }]}>
               {s === 'requests' ? 'Requests' : 'Messages'}
             </Text>
+            {showBadge && (
+              <View style={[styles.segBadge, { backgroundColor: active ? '#fff' : colors.danger }]}>
+                <Text style={[styles.segBadgeText, { color: active ? colors.primary : '#fff' }]}>
+                  {unreadTotal > 9 ? '9+' : unreadTotal}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         );
       })}
@@ -130,7 +151,7 @@ export default function InboxScreen() {
               </View>
               <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>No messages yet</Text>
               <Text style={[styles.emptySub, { color: colors.textMuted }]}>
-                Open a provider's profile and tap "Message" to start chatting.
+                Open a provider's profile and tap "Chat" to start a conversation.
               </Text>
             </View>
           ) : null
@@ -163,14 +184,15 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   segmentLabel: { fontSize: 13, fontWeight: '700' },
+  segBadge: {
+    minWidth: 18, height: 18, borderRadius: 9,
+    paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center',
+  },
+  segBadgeText: { fontSize: 10, fontWeight: '800' },
   empty: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 32 },
   emptyIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
+    width: 72, height: 72, borderRadius: 36,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 16,
   },
   emptyTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8, textAlign: 'center' },
   emptySub: { fontSize: 14, textAlign: 'center', lineHeight: 20 },

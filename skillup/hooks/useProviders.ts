@@ -72,83 +72,76 @@ export function useProviderDetail(id: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!id) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const [provRes, svcRes, revRes] = await Promise.all([
+        supabase.from('providers').select('*').eq('id', id).single(),
+        supabase.from('services').select('*').eq('provider_id', id),
+        supabase
+          .from('reviews')
+          .select('*')
+          .eq('provider_id', id)
+          .order('created_at', { ascending: false })
+          .limit(20),
+      ]);
 
-    async function load() {
-      setLoading(true);
-      setError(null);
+      if (provRes.error) throw provRes.error;
 
-      try {
-        // Fetch provider, services, reviews in parallel
-        const [provRes, svcRes, revRes] = await Promise.all([
-          supabase.from('providers').select('*').eq('id', id).single(),
-          supabase.from('services').select('*').eq('provider_id', id),
-          supabase
-            .from('reviews')
-            .select('*')
-            .eq('provider_id', id)
-            .order('created_at', { ascending: false })
-            .limit(20),
-        ]);
+      const prov = provRes.data as Provider;
 
-        if (provRes.error) throw provRes.error;
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name, phone, avatar_url')
+        .eq('id', prov.user_id)
+        .maybeSingle();
 
-        const prov = provRes.data as Provider;
+      const merged: Provider = {
+        ...prov,
+        full_name: profileData?.full_name ?? null,
+        phone: profileData?.phone ?? null,
+        avatar_url: profileData?.avatar_url ?? null,
+      };
 
-        // Fetch the provider's profile separately (avoids RLS join issue)
-        const { data: profileData } = await supabase
+      const revs = (revRes.data ?? []) as Review[];
+      const reviewerIds = [...new Set(revs.map((r) => r.reviewer_id))];
+      let reviewerMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
+
+      if (reviewerIds.length > 0) {
+        const { data: reviewerProfiles } = await supabase
           .from('profiles')
-          .select('full_name, phone, avatar_url')
-          .eq('id', prov.user_id)
-          .maybeSingle();
+          .select('id, full_name, avatar_url')
+          .in('id', reviewerIds);
 
-        const merged: Provider = {
-          ...prov,
-          full_name: profileData?.full_name ?? null,
-          phone: profileData?.phone ?? null,
-          avatar_url: profileData?.avatar_url ?? null,
-        };
-
-        // Attach reviewer info to each review by fetching profiles
-        const reviews = (revRes.data ?? []) as Review[];
-        const reviewerIds = [...new Set(reviews.map((r) => r.reviewer_id))];
-        let reviewerMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
-
-        if (reviewerIds.length > 0) {
-          const { data: reviewerProfiles } = await supabase
-            .from('profiles')
-            .select('id, full_name, avatar_url')
-            .in('id', reviewerIds);
-
-          if (reviewerProfiles) {
-            reviewerMap = Object.fromEntries(
-              reviewerProfiles.map((p) => [p.id, { full_name: p.full_name, avatar_url: p.avatar_url }])
-            );
-          }
+        if (reviewerProfiles) {
+          reviewerMap = Object.fromEntries(
+            reviewerProfiles.map((p) => [p.id, { full_name: p.full_name, avatar_url: p.avatar_url }])
+          );
         }
-
-        const reviewsWithProfiles = reviews.map((r) => ({
-          ...r,
-          reviewer: reviewerMap[r.reviewer_id] ?? null,
-        }));
-
-        setProvider(merged);
-        setServices((svcRes.data ?? []) as Service[]);
-        setReviews(reviewsWithProfiles as Review[]);
-      } catch (err: unknown) {
-        setError(
-          err instanceof Error ? err.message : 'Failed to load provider'
-        );
-      } finally {
-        setLoading(false);
       }
-    }
 
-    load();
+      const reviewsWithProfiles = revs.map((r) => ({
+        ...r,
+        reviewer: reviewerMap[r.reviewer_id] ?? null,
+      }));
+
+      setProvider(merged);
+      setServices((svcRes.data ?? []) as Service[]);
+      setReviews(reviewsWithProfiles as Review[]);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load provider');
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  return { provider, services, reviews, loading, error };
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  return { provider, services, reviews, loading, error, refresh: load };
 }
 
 /** Fetch nearby businesses via the PostGIS RPC */

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 import { useConversations } from '../../hooks/useMessages';
@@ -16,6 +17,12 @@ import type { Conversation } from '../../hooks/useMessages';
 export default function ProviderMessagesScreen() {
   const { colors } = useTheme();
   const { conversations, loading, refresh } = useConversations();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refresh();
+    }, [refresh])
+  );
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>

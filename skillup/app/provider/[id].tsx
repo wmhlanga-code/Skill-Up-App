@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Image,
   Alert,
   Platform,
+  Share,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -19,15 +20,18 @@ import { useProviderDetail } from '../../hooks/useProviders';
 import { useLocation } from '../../hooks/useLocation';
 import { createBooking } from '../../hooks/useBookings';
 import { getOrCreateConversation } from '../../hooks/useMessages';
+import { useFavoriteStatus } from '../../hooks/useFavorites';
 import { openWhatsApp } from '../../lib/whatsapp';
 import { formatDistance } from '../../lib/location';
 import { Ionicons } from '@expo/vector-icons';
 import { StatsRow } from '../../components/StatsRow';
 import { ServicesList } from '../../components/ServicesList';
 import { ReviewsList } from '../../components/ReviewsList';
+import { ReviewModal } from '../../components/ReviewModal';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { CATEGORY_ICONS } from '../../constants/theme';
+import { supabase } from '../../lib/supabase';
 import type { Provider } from '../../types';
 
 export default function ProviderDetailScreen() {
@@ -37,10 +41,23 @@ export default function ProviderDetailScreen() {
   const { coordinates } = useLocation();
   const router = useRouter();
 
-  const { provider, services, reviews, loading } = useProviderDetail(id ?? '');
+  const { provider, services, reviews, loading, refresh: refreshDetail } = useProviderDetail(id ?? '');
   const [showingInterest, setShowingInterest] = useState(false);
   const [interestSent, setInterestSent] = useState(false);
   const [openingChat, setOpeningChat] = useState(false);
+  const [reviewModalVisible, setReviewModalVisible] = useState(false);
+
+  const { favorited, loading: favLoading, toggle: toggleFav } = useFavoriteStatus(
+    user?.id ?? null,
+    id ?? null
+  );
+
+  // Increment profile view count once on mount
+  useEffect(() => {
+    if (id) {
+      void supabase.rpc('increment_profile_views', { p_provider_id: id });
+    }
+  }, [id]);
 
   if (loading || !provider) {
     return (
@@ -116,6 +133,32 @@ export default function ProviderDetailScreen() {
     );
   }
 
+  async function handleShare() {
+    if (!provider) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      await Share.share({
+        title: `${provider.full_name ?? 'Provider'} on SkillUp`,
+        message: `Check out ${provider.full_name ?? 'this provider'} on SkillUp — ${provider.category} services in ${provider.area_name ?? 'your area'}. ⭐ ${provider.avg_rating.toFixed(1)} · ${provider.total_jobs} jobs done.`,
+      });
+    } catch {
+      // User cancelled share
+    }
+  }
+
+  async function handleToggleFavorite() {
+    if (!user) {
+      Alert.alert('Sign in required', 'Please sign in to save providers.');
+      return;
+    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      await toggleFav();
+    } catch {
+      Alert.alert('Error', 'Could not update saved providers.');
+    }
+  }
+
   async function handleInAppMessage() {
     if (!user || !provider) {
       Alert.alert('Sign in required', 'Please sign in to send a message.');
@@ -150,6 +193,38 @@ export default function ProviderDetailScreen() {
       >
         <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
       </TouchableOpacity>
+
+      {/* Top-right action buttons */}
+      <View style={styles.topRight}>
+        <TouchableOpacity
+          onPress={handleShare}
+          style={[styles.topActionBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        >
+          <Ionicons name="share-outline" size={20} color={colors.textPrimary} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handleToggleFavorite}
+          disabled={favLoading}
+          style={[styles.topActionBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        >
+          <Ionicons
+            name={favorited ? 'heart' : 'heart-outline'}
+            size={20}
+            color={favorited ? colors.danger : colors.textPrimary}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {provider && user && (
+        <ReviewModal
+          visible={reviewModalVisible}
+          providerId={provider.id}
+          reviewerId={user.id}
+          providerName={provider.full_name ?? 'Provider'}
+          onClose={() => setReviewModalVisible(false)}
+          onSubmitted={refreshDetail}
+        />
+      )}
 
       <ScrollView
         contentContainerStyle={styles.container}
@@ -282,9 +357,22 @@ export default function ProviderDetailScreen() {
 
           {/* Reviews */}
           <View style={{ marginBottom: 24 }}>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary, marginBottom: 12 }]}>
-              Reviews ({reviews.length})
-            </Text>
+            <View style={styles.reviewsHeader}>
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+                Reviews ({reviews.length})
+              </Text>
+              {user && (
+                <TouchableOpacity
+                  onPress={() => setReviewModalVisible(true)}
+                  style={[styles.writeReviewBtn, { borderColor: colors.primary }]}
+                >
+                  <Ionicons name="star-outline" size={14} color={colors.primary} />
+                  <Text style={[styles.writeReviewText, { color: colors.primary }]}>
+                    Write a review
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
             <ReviewsList reviews={reviews} />
           </View>
         </View>
@@ -354,6 +442,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   backText: { fontSize: 20, fontWeight: '600' },
+  topRight: {
+    position: 'absolute',
+    top: 56,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  topActionBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  reviewsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  writeReviewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  writeReviewText: { fontSize: 13, fontWeight: '600' },
   container: { paddingBottom: 100 },
   hero: {
     alignItems: 'center',

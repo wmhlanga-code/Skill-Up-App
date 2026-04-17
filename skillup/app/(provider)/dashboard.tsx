@@ -60,6 +60,7 @@ export default function ProviderDashboard() {
   const stats = [
     { icon: 'star' as const,           iconColor: '#F59E0B',        value: (provider?.avg_rating ?? 0).toFixed(1),             label: 'Rating' },
     { icon: 'checkmark-circle' as const, iconColor: colors.success, value: String(provider?.total_jobs ?? 0),                  label: 'Jobs Done' },
+    { icon: 'eye-outline' as const,    iconColor: colors.primary,   value: String((provider as any)?.profile_views ?? 0),      label: 'Profile Views' },
     { icon: 'time-outline' as const,   iconColor: colors.textMuted, value: `${provider?.avg_response_minutes ?? '—'}m`,        label: 'Avg Response' },
   ];
 

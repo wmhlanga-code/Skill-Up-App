@@ -11,11 +11,13 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
+import { useMyFavorites } from '../../hooks/useFavorites';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { ProviderCard } from '../../components/ProviderCard';
 
 const ROLE_CONFIG: Record<string, { label: string; icon: keyof typeof Ionicons.glyphMap }> = {
   seeker:   { label: 'Service Seeker',  icon: 'search-outline' },
@@ -28,6 +30,15 @@ export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
+  const { favorites, loading: favsLoading, refresh: refreshFavs } = useMyFavorites(
+    user?.role === 'seeker' ? (user?.id ?? null) : null
+  );
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshFavs();
+    }, [refreshFavs])
+  );
 
   async function handleSignOut() {
     Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
@@ -156,6 +167,27 @@ export default function ProfileScreen() {
           </View>
         </Card>
 
+        {/* Saved Providers */}
+        {user?.role === 'seeker' && (
+          <>
+            <Text style={[styles.sectionLabel, { color: colors.textMuted, marginTop: 8 }]}>
+              SAVED PROVIDERS
+            </Text>
+            {favorites.length === 0 ? (
+              <Card padding={20} style={{ marginBottom: 8 }}>
+                <View style={styles.emptyFavs}>
+                  <Ionicons name="heart-outline" size={28} color={colors.textMuted} />
+                  <Text style={[styles.emptyFavsText, { color: colors.textMuted }]}>
+                    Tap the heart on a provider's profile to save them here.
+                  </Text>
+                </View>
+              </Card>
+            ) : (
+              favorites.map((p) => <ProviderCard key={p.id} provider={p} />)
+            )}
+          </>
+        )}
+
         <Button
           title="Sign Out"
           variant="outline"
@@ -223,4 +255,6 @@ const styles = StyleSheet.create({
   rowLabel: { fontSize: 15, fontWeight: '500' },
   rowValue: { fontSize: 13 },
   footer: { fontSize: 12, textAlign: 'center', marginTop: 32, lineHeight: 18 },
+  emptyFavs: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  emptyFavsText: { fontSize: 14, flex: 1, lineHeight: 20 },
 });

@@ -17,6 +17,16 @@ import { useStore } from '../../store/useStore';
 import { CATEGORY_ICONS } from '../../constants/theme';
 import type { NearbyProvider } from '../../types';
 
+/** Generate a consistent ±1 float from a UUID string and an index (0 or 1). */
+function deterministicOffset(id: string, idx: number): number {
+  let hash = 0;
+  const seed = id + String(idx);
+  for (let i = 0; i < seed.length; i++) {
+    hash = (Math.imul(31, hash) + seed.charCodeAt(i)) | 0;
+  }
+  return (hash % 1000) / 1000; // -1 to 1
+}
+
 export default function MapScreen() {
   const { colors, isDark } = useTheme();
   const { coordinates, refresh } = useLocation();
@@ -92,13 +102,19 @@ export default function MapScreen() {
       >
         {providers.map((provider) => {
           const iconName = (CATEGORY_ICONS[provider.category ?? 'Other'] ?? 'help-circle-outline') as keyof typeof Ionicons.glyphMap;
+          // Use provider's real coordinates if available from updated RPC,
+          // otherwise fall back to a deterministic offset based on provider ID
+          const provAny = provider as typeof provider & { provider_lat?: number; provider_lng?: number };
+          const markerLat = provAny.provider_lat && provAny.provider_lat !== 0
+            ? provAny.provider_lat
+            : (coordinates?.latitude ?? 0) + deterministicOffset(provider.id, 0) * 0.04;
+          const markerLng = provAny.provider_lng && provAny.provider_lng !== 0
+            ? provAny.provider_lng
+            : (coordinates?.longitude ?? 0) + deterministicOffset(provider.id, 1) * 0.04;
           return (
             <Marker
               key={provider.id}
-              coordinate={{
-                latitude: (coordinates?.latitude ?? 0) + (Math.random() - 0.5) * 0.05,
-                longitude: (coordinates?.longitude ?? 0) + (Math.random() - 0.5) * 0.05,
-              }}
+              coordinate={{ latitude: markerLat, longitude: markerLng }}
               onPress={() => setSelectedProvider(provider)}
             >
               <View
