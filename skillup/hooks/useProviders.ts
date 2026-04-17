@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import type { NearbyProvider, ProviderCategory, Provider, Service, Review } from '../types';
+import type { NearbyProvider, ProviderCategory, Provider, Service, Review, Business } from '../types';
+
+export interface NearbyBusiness extends Business {
+  distance_km: number | null;
+}
 
 /** Fetch nearby providers via the PostGIS RPC */
 export function useProviders(
@@ -145,6 +149,35 @@ export function useProviderDetail(id: string) {
   }, [id]);
 
   return { provider, services, reviews, loading, error };
+}
+
+/** Fetch nearby businesses via the PostGIS RPC */
+export function useBusinesses(lat: number | null, lng: number | null) {
+  const [businesses, setBusinesses] = useState<NearbyBusiness[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetch = useCallback(async () => {
+    if (lat === null || lng === null) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('get_nearby_businesses', {
+        lat,
+        lng,
+        radius_km: 100,
+      });
+      if (!error && data) {
+        setBusinesses(data as NearbyBusiness[]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [lat, lng]);
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
+  return { businesses, loading, refresh: fetch };
 }
 
 /** Fetch providers owned by the current user */

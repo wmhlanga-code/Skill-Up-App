@@ -80,7 +80,7 @@ export default function RegisterBusinessScreen() {
     setSaving(true);
     try {
       const locationValue = coordinates
-        ? `POINT(${coordinates.longitude} ${coordinates.latitude})`
+        ? `SRID=4326;POINT(${coordinates.longitude} ${coordinates.latitude})`
         : null;
 
       const { error } = await supabase.from('businesses').insert({

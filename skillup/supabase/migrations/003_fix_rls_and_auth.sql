@@ -2,6 +2,7 @@
 -- Fix 1: Allow reading profiles of providers/businesses publicly
 -- (needed for provider detail screen — profile join was blocked by RLS)
 -- ============================================================
+DROP POLICY IF EXISTS "profiles_select_provider_public" ON profiles;
 CREATE POLICY "profiles_select_provider_public"
   ON profiles FOR SELECT
   USING (

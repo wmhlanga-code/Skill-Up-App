@@ -11,12 +11,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { useLocation } from '../../hooks/useLocation';
-import { useProviders } from '../../hooks/useProviders';
+import { useProviders, useBusinesses } from '../../hooks/useProviders';
 import { useStore } from '../../store/useStore';
 import { LocationBar } from '../../components/LocationBar';
 import { SearchBar } from '../../components/SearchBar';
 import { CategoryChips } from '../../components/CategoryChips';
 import { ProviderCard } from '../../components/ProviderCard';
+import { BusinessCard } from '../../components/BusinessCard';
 import type { NearbyProvider } from '../../types';
 
 function SkeletonCard() {
@@ -57,13 +58,38 @@ export default function HomeScreen() {
     searchQuery
   );
 
+  const {
+    businesses,
+    loading: businessesLoading,
+    refresh: refreshBusinesses,
+  } = useBusinesses(
+    coordinates?.latitude ?? null,
+    coordinates?.longitude ?? null
+  );
+
   const onRefresh = useCallback(async () => {
     await refreshLoc();
     await refresh();
-  }, [refreshLoc, refresh]);
+    await refreshBusinesses();
+  }, [refreshLoc, refresh, refreshBusinesses]);
 
   const isLoading = providersLoading && providers.length === 0;
   const firstName = user?.full_name?.split(' ')[0];
+
+  // Filter businesses by selected category and search
+  const filteredBusinesses = businesses.filter((b) => {
+    if (selectedCategory && selectedCategory !== 'All' && b.category !== selectedCategory) return false;
+    if (searchQuery && searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      return (
+        b.business_name?.toLowerCase().includes(q) ||
+        b.category?.toLowerCase().includes(q) ||
+        b.area_name?.toLowerCase().includes(q) ||
+        b.services_description?.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
 
   const ListHeader = (
     <View style={styles.listHeader}>
@@ -83,13 +109,31 @@ export default function HomeScreen() {
 
       {!isLoading && providers.length > 0 && (
         <View style={styles.resultsRow}>
-          <Text style={[styles.resultsLabel, { color: colors.textMuted }]}>
+          <Text style={[styles.sectionLabel, { color: colors.textMuted }]}>
             {providers.length} provider{providers.length !== 1 ? 's' : ''} nearby
           </Text>
         </View>
       )}
     </View>
   );
+
+  const BusinessesSection =
+    !businessesLoading && filteredBusinesses.length > 0 ? (
+      <View style={styles.businessSection}>
+        <View style={styles.sectionHeader}>
+          <Ionicons name="storefront-outline" size={18} color={colors.primary} />
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            {' '}Local Businesses
+          </Text>
+          <Text style={[styles.sectionCount, { color: colors.textMuted }]}>
+            ({filteredBusinesses.length})
+          </Text>
+        </View>
+        {filteredBusinesses.map((b) => (
+          <BusinessCard key={b.id} business={b} />
+        ))}
+      </View>
+    ) : null;
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
@@ -104,11 +148,12 @@ export default function HomeScreen() {
           keyExtractor={(item: NearbyProvider) => item.id}
           renderItem={({ item }) => <ProviderCard provider={item} />}
           ListHeaderComponent={ListHeader}
+          ListFooterComponent={BusinessesSection}
           contentContainerStyle={styles.container}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
-              refreshing={providersLoading}
+              refreshing={providersLoading || businessesLoading}
               onRefresh={onRefresh}
               tintColor={colors.primary}
               colors={[colors.primary]}
@@ -147,7 +192,16 @@ const styles = StyleSheet.create({
   greetingText: { fontSize: 14, fontWeight: '500', marginBottom: 2 },
   title: { fontSize: 30, fontWeight: '900', letterSpacing: -0.5 },
   resultsRow: { marginBottom: 10 },
-  resultsLabel: { fontSize: 13, fontWeight: '500' },
+  sectionLabel: { fontSize: 13, fontWeight: '500' },
+  businessSection: { marginTop: 8 },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 4,
+  },
+  sectionTitle: { fontSize: 17, fontWeight: '700' },
+  sectionCount: { fontSize: 14, marginLeft: 4 },
   skeleton: {
     flexDirection: 'row',
     alignItems: 'center',

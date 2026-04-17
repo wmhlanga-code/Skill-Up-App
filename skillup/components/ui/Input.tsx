@@ -13,10 +13,11 @@ interface InputProps extends TextInputProps {
   error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  containerStyle?: object;
 }
 
 export const Input = forwardRef<TextInput, InputProps>(
-  ({ label, error, leftIcon, rightIcon, style, onFocus, onBlur, ...rest }, ref) => {
+  ({ label, error, leftIcon, rightIcon, style, containerStyle, onFocus, onBlur, multiline, ...rest }, ref) => {
     const { colors } = useTheme();
     const [focused, setFocused] = useState(false);
 
@@ -34,17 +35,29 @@ export const Input = forwardRef<TextInput, InputProps>(
         <View
           style={[
             styles.container,
+            multiline && styles.containerMultiline,
             {
               borderColor,
               backgroundColor: colors.surface,
               shadowColor: focused ? colors.primary : 'transparent',
             },
+            containerStyle,
           ]}
         >
-          {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
+          {leftIcon && (
+            <View style={[styles.leftIcon, multiline && styles.leftIconMultiline]}>
+              {leftIcon}
+            </View>
+          )}
           <TextInput
             ref={ref}
-            style={[styles.input, { color: colors.textPrimary, flex: 1 }, style as object]}
+            multiline={multiline}
+            style={[
+              styles.input,
+              { color: colors.textPrimary, flex: 1 },
+              multiline && styles.inputMultiline,
+              style as object,
+            ]}
             placeholderTextColor={colors.textMuted}
             onFocus={(e) => {
               setFocused(true);
@@ -87,8 +100,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 6,
   },
+  containerMultiline: {
+    height: undefined,
+    minHeight: 50,
+    alignItems: 'flex-start',
+    paddingVertical: 12,
+  },
   input: { fontSize: 15, paddingVertical: 0 },
+  inputMultiline: {
+    textAlignVertical: 'top',
+    paddingVertical: 0,
+  },
   leftIcon: { marginRight: 10 },
+  leftIconMultiline: { marginTop: 2 },
   rightIcon: { marginLeft: 8 },
   error: { fontSize: 12, marginTop: 5, marginLeft: 2 },
 });
