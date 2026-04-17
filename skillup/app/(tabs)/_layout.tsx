@@ -3,32 +3,37 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
+import { useUnreadCount } from '../../hooks/useMessages';
 
 function TabIcon({
   name,
   focusedName,
   label,
   focused,
+  badge,
 }: {
   name: keyof typeof Ionicons.glyphMap;
   focusedName: keyof typeof Ionicons.glyphMap;
   label: string;
   focused: boolean;
+  badge?: number;
 }) {
   const { colors } = useTheme();
   return (
     <View style={styles.tabIcon}>
-      <Ionicons
-        name={focused ? focusedName : name}
-        size={24}
-        color={focused ? colors.primary : colors.textMuted}
-      />
-      <Text
-        style={[
-          styles.tabLabel,
-          { color: focused ? colors.primary : colors.textMuted },
-        ]}
-      >
+      <View>
+        <Ionicons
+          name={focused ? focusedName : name}
+          size={24}
+          color={focused ? colors.primary : colors.textMuted}
+        />
+        {badge != null && badge > 0 && (
+          <View style={[styles.badge, { backgroundColor: colors.danger }]}>
+            <Text style={styles.badgeText}>{badge > 9 ? '9+' : badge}</Text>
+          </View>
+        )}
+      </View>
+      <Text style={[styles.tabLabel, { color: focused ? colors.primary : colors.textMuted }]}>
         {label}
       </Text>
     </View>
@@ -37,6 +42,7 @@ function TabIcon({
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const unreadCount = useUnreadCount();
 
   return (
     <Tabs
@@ -72,7 +78,13 @@ export default function TabsLayout() {
         name="bookings"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon name="calendar-outline" focusedName="calendar" label="Bookings" focused={focused} />
+            <TabIcon
+              name="chatbubble-ellipses-outline"
+              focusedName="chatbubble-ellipses"
+              label="Inbox"
+              focused={focused}
+              badge={unreadCount}
+            />
           ),
         }}
       />
@@ -80,7 +92,7 @@ export default function TabsLayout() {
         name="chat"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon name="chatbubbles-outline" focusedName="chatbubbles" label="Assistant" focused={focused} />
+            <TabIcon name="flash-outline" focusedName="flash" label="Assistant" focused={focused} />
           ),
         }}
       />
@@ -99,4 +111,18 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   tabIcon: { alignItems: 'center', paddingTop: 6 },
   tabLabel: { fontSize: 10, fontWeight: '600', marginTop: 2 },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -8,
+    minWidth: 17,
+    height: 17,
+    borderRadius: 9,
+    paddingHorizontal: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
+  badgeText: { color: '#fff', fontSize: 10, fontWeight: '800' },
 });

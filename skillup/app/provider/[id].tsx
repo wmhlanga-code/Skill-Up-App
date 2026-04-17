@@ -12,11 +12,13 @@ import {
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { useProviderDetail } from '../../hooks/useProviders';
 import { useLocation } from '../../hooks/useLocation';
 import { createBooking } from '../../hooks/useBookings';
+import { getOrCreateConversation } from '../../hooks/useMessages';
 import { openWhatsApp } from '../../lib/whatsapp';
 import { formatDistance } from '../../lib/location';
 import { Ionicons } from '@expo/vector-icons';
@@ -38,6 +40,7 @@ export default function ProviderDetailScreen() {
   const { provider, services, reviews, loading } = useProviderDetail(id ?? '');
   const [showingInterest, setShowingInterest] = useState(false);
   const [interestSent, setInterestSent] = useState(false);
+  const [openingChat, setOpeningChat] = useState(false);
 
   if (loading || !provider) {
     return (
@@ -101,19 +104,40 @@ export default function ProviderDetailScreen() {
     }
   }
 
-  async function handleMessage() {
+  async function handleWhatsApp() {
     if (!provider) return;
     if (!provider.phone) {
-      Alert.alert(
-        'No phone number',
-        'This provider has not added a phone number yet.'
-      );
+      Alert.alert('No phone number', 'This provider has not added a phone number yet.');
       return;
     }
     await openWhatsApp(
       provider.phone,
       `Hi ${provider.full_name}, I found you on SkillUp and I'm interested in your ${provider.category} services.`
     );
+  }
+
+  async function handleInAppMessage() {
+    if (!user || !provider) {
+      Alert.alert('Sign in required', 'Please sign in to send a message.');
+      return;
+    }
+    setOpeningChat(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    try {
+      const conversationId = await getOrCreateConversation(user.id, provider.id);
+      router.push({
+        pathname: '/conversation/[id]',
+        params: {
+          id: conversationId,
+          otherName: provider.full_name ?? 'Provider',
+          otherAvatar: provider.avatar_url ?? '',
+        },
+      });
+    } catch {
+      Alert.alert('Error', 'Could not open conversation. Please try again.');
+    } finally {
+      setOpeningChat(false);
+    }
   }
 
   return (
@@ -277,21 +301,29 @@ export default function ProviderDetailScreen() {
         ]}
       >
         <Button
-          title="Message"
+          title="Chat"
           variant="secondary"
-          onPress={handleMessage}
-          leftIcon={<Ionicons name="logo-whatsapp" size={18} color={colors.primary} />}
-          style={{ flex: 1, marginRight: 10 }}
+          onPress={handleInAppMessage}
+          loading={openingChat}
+          leftIcon={<Ionicons name="chatbubble-outline" size={16} color={colors.primary} />}
+          style={{ flex: 1, marginRight: 8 }}
         />
         <Button
-          title={interestSent ? 'Sent!' : 'Show Interest'}
+          title="WhatsApp"
+          variant="secondary"
+          onPress={handleWhatsApp}
+          leftIcon={<Ionicons name="logo-whatsapp" size={16} color={colors.success} />}
+          style={{ flex: 1, marginRight: 8 }}
+        />
+        <Button
+          title={interestSent ? 'Sent!' : 'Hire'}
           variant={interestSent ? 'ghost' : 'primary'}
           onPress={handleShowInterest}
           loading={showingInterest}
           disabled={interestSent}
           leftIcon={interestSent
-            ? <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
-            : <Ionicons name="flash" size={18} color="#fff" />
+            ? <Ionicons name="checkmark-circle" size={16} color={colors.primary} />
+            : <Ionicons name="flash" size={16} color="#fff" />
           }
           style={{ flex: 1 }}
         />

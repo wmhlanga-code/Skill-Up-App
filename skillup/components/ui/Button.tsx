@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../hooks/useTheme';
 
 interface ButtonProps extends TouchableOpacityProps {
@@ -25,9 +26,22 @@ export function Button({
   leftIcon,
   style,
   disabled,
+  onPress,
   ...rest
 }: ButtonProps) {
   const { colors } = useTheme();
+
+  const handlePress = useCallback<NonNullable<TouchableOpacityProps['onPress']>>(
+    (e) => {
+      Haptics.impactAsync(
+        variant === 'primary' || variant === 'danger'
+          ? Haptics.ImpactFeedbackStyle.Medium
+          : Haptics.ImpactFeedbackStyle.Light
+      );
+      onPress?.(e);
+    },
+    [variant, onPress]
+  );
 
   const heights = { sm: 36, md: 48, lg: 56 };
   const fontSizes = { sm: 13, md: 15, lg: 17 };
@@ -64,6 +78,7 @@ export function Button({
     <TouchableOpacity
       activeOpacity={0.75}
       disabled={isDisabled}
+      onPress={handlePress}
       style={[
         {
           height: heights[size],
