@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -43,7 +44,6 @@ export default function LoginScreen() {
   async function onSubmit(values: FormValues) {
     try {
       await signIn(values.email, values.password);
-      // Navigation handled by AuthGuard
     } catch (err: unknown) {
       Alert.alert(
         'Login failed',
@@ -58,14 +58,16 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        contentContainerStyle={[styles.container]}
+        contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Logo / Header */}
+        {/* Logo */}
         <View style={styles.header}>
-          <Text style={styles.logoEmoji}>⚡</Text>
-          <Text style={[styles.logo, { color: colors.primary }]}>SkillUp</Text>
+          <View style={[styles.logoBox, { backgroundColor: colors.primary }]}>
+            <Ionicons name="flash" size={32} color="#fff" />
+          </View>
+          <Text style={[styles.logo, { color: colors.textPrimary }]}>SkillUp</Text>
           <Text style={[styles.tagline, { color: colors.textMuted }]}>
             Your local skills marketplace
           </Text>
@@ -78,9 +80,7 @@ export default function LoginScreen() {
             { backgroundColor: colors.surface, borderColor: colors.border },
           ]}
         >
-          <Text style={[styles.title, { color: colors.textPrimary }]}>
-            Welcome back
-          </Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Welcome back</Text>
           <Text style={[styles.subtitle, { color: colors.textMuted }]}>
             Sign in to your account
           </Text>
@@ -99,7 +99,7 @@ export default function LoginScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
-                  leftIcon={<Text style={{ fontSize: 16 }}>✉️</Text>}
+                  leftIcon={<Ionicons name="mail-outline" size={18} color={colors.textMuted} />}
                 />
               )}
             />
@@ -116,12 +116,14 @@ export default function LoginScreen() {
                   error={errors.password?.message}
                   secureTextEntry={!showPassword}
                   autoComplete="password"
-                  leftIcon={<Text style={{ fontSize: 16 }}>🔒</Text>}
+                  leftIcon={<Ionicons name="lock-closed-outline" size={18} color={colors.textMuted} />}
                   rightIcon={
                     <TouchableOpacity onPress={() => setShowPassword((v) => !v)}>
-                      <Text style={{ fontSize: 16 }}>
-                        {showPassword ? '🙈' : '👁️'}
-                      </Text>
+                      <Ionicons
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={18}
+                        color={colors.textMuted}
+                      />
                     </TouchableOpacity>
                   }
                 />
@@ -137,15 +139,12 @@ export default function LoginScreen() {
           />
         </View>
 
-        {/* Footer */}
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: colors.textMuted }]}>
             Don't have an account?{' '}
           </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
-            <Text style={[styles.footerLink, { color: colors.primary }]}>
-              Sign up
-            </Text>
+            <Text style={[styles.footerLink, { color: colors.primary }]}>Sign up</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -154,42 +153,23 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 80,
-    paddingBottom: 40,
-  },
-  header: {
+  container: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 80, paddingBottom: 40 },
+  header: { alignItems: 'center', marginBottom: 40 },
+  logoBox: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
     alignItems: 'center',
-    marginBottom: 40,
+    justifyContent: 'center',
+    marginBottom: 14,
   },
-  logoEmoji: { fontSize: 48, marginBottom: 8 },
-  logo: {
-    fontSize: 36,
-    fontWeight: '900',
-    letterSpacing: -1,
-    marginBottom: 6,
-  },
+  logo: { fontSize: 32, fontWeight: '900', letterSpacing: -1, marginBottom: 6 },
   tagline: { fontSize: 15 },
-  card: {
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 24,
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '800',
-    marginBottom: 4,
-  },
+  card: { borderRadius: 20, borderWidth: 1, padding: 24, marginBottom: 24 },
+  title: { fontSize: 24, fontWeight: '800', marginBottom: 4 },
   subtitle: { fontSize: 14, marginBottom: 24 },
   fields: { gap: 16, marginBottom: 8 },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   footerText: { fontSize: 14 },
   footerLink: { fontSize: 14, fontWeight: '700' },
 });

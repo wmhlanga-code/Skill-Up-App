@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -48,13 +49,7 @@ export default function SignupScreen() {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: {
-      full_name: '',
-      phone: '',
-      email: '',
-      password: '',
-      confirm_password: '',
-    },
+    defaultValues: { full_name: '', phone: '', email: '', password: '', confirm_password: '' },
   });
 
   async function onSubmit(values: FormValues) {
@@ -79,36 +74,30 @@ export default function SignupScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Back */}
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.back}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={[styles.backText, { color: colors.primary }]}>
-            ← Back
-          </Text>
+          <Ionicons name="arrow-back" size={20} color={colors.primary} />
+          <Text style={[styles.backText, { color: colors.primary }]}> Back</Text>
         </TouchableOpacity>
 
-        {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.logoEmoji}>⚡</Text>
-          <Text style={[styles.logo, { color: colors.primary }]}>SkillUp</Text>
+          <View style={[styles.logoBox, { backgroundColor: colors.primary }]}>
+            <Ionicons name="flash" size={28} color="#fff" />
+          </View>
+          <Text style={[styles.logo, { color: colors.textPrimary }]}>SkillUp</Text>
         </View>
 
-        {/* Card */}
         <View
           style={[
             styles.card,
             { backgroundColor: colors.surface, borderColor: colors.border },
           ]}
         >
-          <Text style={[styles.title, { color: colors.textPrimary }]}>
-            Create account
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.textMuted }]}>
-            Join SkillUp today
-          </Text>
+          <Text style={[styles.title, { color: colors.textPrimary }]}>Create account</Text>
+          <Text style={[styles.subtitle, { color: colors.textMuted }]}>Join SkillUp today</Text>
 
           <View style={styles.fields}>
             <Controller
@@ -123,7 +112,7 @@ export default function SignupScreen() {
                   error={errors.full_name?.message}
                   autoCapitalize="words"
                   autoComplete="name"
-                  leftIcon={<Text style={{ fontSize: 16 }}>👤</Text>}
+                  leftIcon={<Ionicons name="person-outline" size={18} color={colors.textMuted} />}
                 />
               )}
             />
@@ -140,7 +129,7 @@ export default function SignupScreen() {
                   error={errors.phone?.message}
                   keyboardType="phone-pad"
                   autoComplete="tel"
-                  leftIcon={<Text style={{ fontSize: 16 }}>📱</Text>}
+                  leftIcon={<Ionicons name="call-outline" size={18} color={colors.textMuted} />}
                 />
               )}
             />
@@ -158,7 +147,7 @@ export default function SignupScreen() {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
-                  leftIcon={<Text style={{ fontSize: 16 }}>✉️</Text>}
+                  leftIcon={<Ionicons name="mail-outline" size={18} color={colors.textMuted} />}
                 />
               )}
             />
@@ -174,12 +163,14 @@ export default function SignupScreen() {
                   onBlur={onBlur}
                   error={errors.password?.message}
                   secureTextEntry={!showPassword}
-                  leftIcon={<Text style={{ fontSize: 16 }}>🔒</Text>}
+                  leftIcon={<Ionicons name="lock-closed-outline" size={18} color={colors.textMuted} />}
                   rightIcon={
                     <TouchableOpacity onPress={() => setShowPassword((v) => !v)}>
-                      <Text style={{ fontSize: 16 }}>
-                        {showPassword ? '🙈' : '👁️'}
-                      </Text>
+                      <Ionicons
+                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                        size={18}
+                        color={colors.textMuted}
+                      />
                     </TouchableOpacity>
                   }
                 />
@@ -197,7 +188,7 @@ export default function SignupScreen() {
                   onBlur={onBlur}
                   error={errors.confirm_password?.message}
                   secureTextEntry={!showPassword}
-                  leftIcon={<Text style={{ fontSize: 16 }}>🔒</Text>}
+                  leftIcon={<Ionicons name="lock-closed-outline" size={18} color={colors.textMuted} />}
                 />
               )}
             />
@@ -216,9 +207,7 @@ export default function SignupScreen() {
             Already have an account?{' '}
           </Text>
           <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-            <Text style={[styles.footerLink, { color: colors.primary }]}>
-              Sign in
-            </Text>
+            <Text style={[styles.footerLink, { color: colors.primary }]}>Sign in</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -227,31 +216,24 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  back: { marginBottom: 16 },
+  container: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 60, paddingBottom: 40 },
+  back: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   backText: { fontSize: 15, fontWeight: '600' },
-  header: { alignItems: 'center', marginBottom: 28 },
-  logoEmoji: { fontSize: 36, marginBottom: 6 },
-  logo: { fontSize: 30, fontWeight: '900', letterSpacing: -1 },
-  card: {
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 24,
-    marginBottom: 24,
+  header: { alignItems: 'center', marginBottom: 24 },
+  logoBox: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
+  logo: { fontSize: 26, fontWeight: '900', letterSpacing: -1 },
+  card: { borderRadius: 20, borderWidth: 1, padding: 24, marginBottom: 24 },
   title: { fontSize: 24, fontWeight: '800', marginBottom: 4 },
   subtitle: { fontSize: 14, marginBottom: 24 },
   fields: { gap: 16, marginBottom: 8 },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   footerText: { fontSize: 14 },
   footerLink: { fontSize: 14, fontWeight: '700' },
 });

@@ -6,8 +6,11 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
-import { CATEGORIES, CATEGORY_EMOJIS } from '../constants/theme';
+import { CATEGORIES, CATEGORY_ICONS } from '../constants/theme';
+
+const ALL_ICON = 'apps-outline';
 
 interface CategoryChipsProps {
   selected: string;
@@ -25,7 +28,7 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
     >
       {CATEGORIES.map((cat) => {
         const isActive = selected === cat;
-        const emoji = cat === 'All' ? '⚡' : CATEGORY_EMOJIS[cat] ?? '⭐';
+        const iconName = cat === 'All' ? ALL_ICON : (CATEGORY_ICONS[cat] ?? 'help-circle-outline');
 
         return (
           <TouchableOpacity
@@ -34,15 +37,18 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
             style={[
               styles.chip,
               {
-                backgroundColor: isActive
-                  ? colors.primary
-                  : colors.surface,
+                backgroundColor: isActive ? colors.primary : colors.surface,
                 borderColor: isActive ? colors.primary : colors.border,
               },
             ]}
             activeOpacity={0.7}
           >
-            <Text style={styles.emoji}>{emoji}</Text>
+            <Ionicons
+              name={iconName as keyof typeof Ionicons.glyphMap}
+              size={14}
+              color={isActive ? '#FFFFFF' : colors.textMuted}
+              style={styles.icon}
+            />
             <Text
               style={[
                 styles.label,
@@ -59,10 +65,7 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    paddingRight: 16,
-    marginBottom: 16,
-  },
+  scroll: { paddingRight: 16, marginBottom: 16 },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -72,12 +75,6 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     marginRight: 8,
   },
-  emoji: {
-    fontSize: 14,
-    marginRight: 5,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
+  icon: { marginRight: 5 },
+  label: { fontSize: 13, fontWeight: '600' },
 });

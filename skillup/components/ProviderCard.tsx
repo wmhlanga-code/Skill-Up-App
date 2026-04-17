@@ -6,10 +6,11 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../hooks/useTheme';
 import { formatDistance } from '../lib/location';
-import { CATEGORY_EMOJIS } from '../constants/theme';
+import { CATEGORY_ICONS } from '../constants/theme';
 import type { NearbyProvider } from '../types';
 
 interface ProviderCardProps {
@@ -20,11 +21,11 @@ export function ProviderCard({ provider }: ProviderCardProps) {
   const { colors } = useTheme();
   const router = useRouter();
 
-  const emoji = CATEGORY_EMOJIS[provider.category ?? 'Other'] ?? '⭐';
+  const iconName = CATEGORY_ICONS[provider.category ?? 'Other'] ?? 'help-circle-outline';
 
   function renderStars(rating: number) {
     const full = Math.round(rating);
-    return '★'.repeat(full) + '☆'.repeat(5 - full);
+    return Array.from({ length: 5 }, (_, i) => i < full);
   }
 
   return (
@@ -40,7 +41,7 @@ export function ProviderCard({ provider }: ProviderCardProps) {
         },
       ]}
     >
-      {/* Avatar / emoji */}
+      {/* Avatar */}
       <View style={styles.left}>
         {provider.avatar_url ? (
           <Image
@@ -48,20 +49,19 @@ export function ProviderCard({ provider }: ProviderCardProps) {
             style={[styles.avatar, { borderColor: colors.border }]}
           />
         ) : (
-          <View
-            style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}
-          >
-            <Text style={styles.avatarEmoji}>{emoji}</Text>
+          <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
+            <Ionicons
+              name={iconName as keyof typeof Ionicons.glyphMap}
+              size={24}
+              color={colors.primary}
+            />
           </View>
         )}
-        {/* Availability dot */}
         <View
           style={[
             styles.dot,
             {
-              backgroundColor: provider.is_available
-                ? colors.success
-                : colors.textMuted,
+              backgroundColor: provider.is_available ? colors.success : colors.textMuted,
             },
           ]}
         />
@@ -70,31 +70,34 @@ export function ProviderCard({ provider }: ProviderCardProps) {
       {/* Info */}
       <View style={styles.info}>
         <View style={styles.nameRow}>
-          <Text
-            style={[styles.name, { color: colors.textPrimary }]}
-            numberOfLines={1}
-          >
+          <Text style={[styles.name, { color: colors.textPrimary }]} numberOfLines={1}>
             {provider.full_name ?? 'Provider'}
           </Text>
           {provider.is_available && (
-            <View
-              style={[styles.badge, { backgroundColor: colors.successLight }]}
-            >
-              <Text style={[styles.badgeText, { color: colors.success }]}>
-                Available
-              </Text>
+            <View style={[styles.badge, { backgroundColor: colors.successLight }]}>
+              <Text style={[styles.badgeText, { color: colors.success }]}>Available</Text>
             </View>
           )}
         </View>
 
         <Text style={[styles.category, { color: colors.primary }]}>
-          {emoji} {provider.category ?? 'General'}
+          {provider.category ?? 'General'}
         </Text>
 
         <View style={styles.meta}>
-          <Text style={[styles.rating, { color: colors.warning ?? '#D97706' }]}>
-            {renderStars(provider.avg_rating)} {provider.avg_rating.toFixed(1)}
-          </Text>
+          <View style={styles.stars}>
+            {renderStars(provider.avg_rating).map((filled, i) => (
+              <Ionicons
+                key={i}
+                name={filled ? 'star' : 'star-outline'}
+                size={12}
+                color={colors.warning ?? '#D97706'}
+              />
+            ))}
+            <Text style={[styles.ratingText, { color: colors.warning ?? '#D97706' }]}>
+              {' '}{provider.avg_rating.toFixed(1)}
+            </Text>
+          </View>
           <Text style={[styles.sep, { color: colors.textMuted }]}>·</Text>
           <Text style={[styles.metaText, { color: colors.textMuted }]}>
             {provider.total_jobs} jobs
@@ -110,14 +113,16 @@ export function ProviderCard({ provider }: ProviderCardProps) {
         </View>
 
         {provider.area_name ? (
-          <Text style={[styles.area, { color: colors.textMuted }]}>
-            📍 {provider.area_name}
-          </Text>
+          <View style={styles.areaRow}>
+            <Ionicons name="location-outline" size={12} color={colors.textMuted} />
+            <Text style={[styles.area, { color: colors.textMuted }]}>
+              {' '}{provider.area_name}
+            </Text>
+          </View>
         ) : null}
       </View>
 
-      {/* Chevron */}
-      <Text style={[styles.chevron, { color: colors.textMuted }]}>›</Text>
+      <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
     </TouchableOpacity>
   );
 }
@@ -135,16 +140,8 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
-  left: {
-    position: 'relative',
-    marginRight: 14,
-  },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 2,
-  },
+  left: { position: 'relative', marginRight: 14 },
+  avatar: { width: 56, height: 56, borderRadius: 28, borderWidth: 2 },
   avatarFallback: {
     width: 56,
     height: 56,
@@ -152,7 +149,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarEmoji: { fontSize: 26 },
   dot: {
     width: 13,
     height: 13,
@@ -170,34 +166,15 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     gap: 6,
   },
-  name: {
-    fontSize: 16,
-    fontWeight: '700',
-    flex: 1,
-  },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  category: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  meta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 4,
-  },
-  rating: { fontSize: 13, fontWeight: '600' },
+  name: { fontSize: 16, fontWeight: '700', flex: 1 },
+  badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
+  badgeText: { fontSize: 11, fontWeight: '700' },
+  category: { fontSize: 13, fontWeight: '600', marginBottom: 4 },
+  meta: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 4 },
+  stars: { flexDirection: 'row', alignItems: 'center' },
+  ratingText: { fontSize: 12, fontWeight: '600' },
   sep: { fontSize: 13 },
   metaText: { fontSize: 13 },
-  area: { fontSize: 12, marginTop: 3 },
-  chevron: { fontSize: 24, fontWeight: '300', marginLeft: 8 },
+  areaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 3 },
+  area: { fontSize: 12 },
 });

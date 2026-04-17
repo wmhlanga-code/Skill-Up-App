@@ -14,6 +14,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useMyProviderProfile } from '../../hooks/useProviders';
 import { useProviderBookings } from '../../hooks/useBookings';
 import { supabase } from '../../lib/supabase';
+import { Ionicons } from '@expo/vector-icons';
 import { RequestCard } from '../../components/RequestCard';
 import { BookingCard } from '../../components/BookingCard';
 import { StatsRow } from '../../components/StatsRow';
@@ -57,9 +58,9 @@ export default function ProviderDashboard() {
   }
 
   const stats = [
-    { emoji: '⭐', value: (provider?.avg_rating ?? 0).toFixed(1), label: 'Rating' },
-    { emoji: '✅', value: String(provider?.total_jobs ?? 0), label: 'Jobs Done' },
-    { emoji: '⏱️', value: `${provider?.avg_response_minutes ?? '—'}m`, label: 'Avg Response' },
+    { icon: 'star' as const,           iconColor: '#F59E0B',        value: (provider?.avg_rating ?? 0).toFixed(1),             label: 'Rating' },
+    { icon: 'checkmark-circle' as const, iconColor: colors.success, value: String(provider?.total_jobs ?? 0),                  label: 'Jobs Done' },
+    { icon: 'time-outline' as const,   iconColor: colors.textMuted, value: `${provider?.avg_response_minutes ?? '—'}m`,        label: 'Avg Response' },
   ];
 
   return (
@@ -83,7 +84,7 @@ export default function ProviderDashboard() {
               Welcome back
             </Text>
             <Text style={[styles.title, { color: colors.textPrimary }]}>
-              Dashboard 📊
+              Dashboard
             </Text>
           </View>
         </View>
@@ -127,7 +128,9 @@ export default function ProviderDashboard() {
         {/* Earnings summary */}
         <Card padding={16} style={{ marginBottom: 20 }}>
           <View style={styles.earningsRow}>
-            <Text style={styles.earningsEmoji}>💼</Text>
+            <View style={[styles.earningsIconBox, { backgroundColor: colors.primaryLight }]}>
+              <Ionicons name="briefcase-outline" size={24} color={colors.primary} />
+            </View>
             <View>
               <Text style={[styles.earningsLabel, { color: colors.textMuted }]}>
                 Jobs Summary
@@ -143,9 +146,12 @@ export default function ProviderDashboard() {
         </Card>
 
         {/* Incoming requests */}
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-          🔔 Incoming Requests ({pendingBookings.length})
-        </Text>
+        <View style={styles.sectionHeader}>
+          <Ionicons name="notifications-outline" size={18} color={colors.textPrimary} />
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+            {' '}Incoming Requests ({pendingBookings.length})
+          </Text>
+        </View>
 
         {pendingBookings.length === 0 ? (
           <Card padding={20} style={{ marginBottom: 20 }}>
@@ -166,9 +172,12 @@ export default function ProviderDashboard() {
         {/* Recent jobs */}
         {recentBookings.length > 0 && (
           <>
-            <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
-              📁 Recent Jobs
-            </Text>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="folder-outline" size={18} color={colors.textPrimary} />
+              <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>
+                {' '}Recent Jobs
+              </Text>
+            </View>
             {recentBookings.map((booking: Booking) => (
               <BookingCard key={booking.id} booking={booking} />
             ))}
@@ -200,10 +209,11 @@ const styles = StyleSheet.create({
   availTitle: { fontSize: 15, fontWeight: '600', marginBottom: 2 },
   availSub: { fontSize: 12 },
   earningsRow: { flexDirection: 'row', alignItems: 'center' },
-  earningsEmoji: { fontSize: 32, marginRight: 14 },
+  earningsIconBox: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: 14 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
   earningsLabel: { fontSize: 12, fontWeight: '500', marginBottom: 2 },
   earningsValue: { fontSize: 22, fontWeight: '800', marginBottom: 2 },
   earningsNote: { fontSize: 11 },
-  sectionTitle: { fontSize: 17, fontWeight: '700', marginBottom: 12 },
+  sectionTitle: { fontSize: 17, fontWeight: '700' },
   emptyText: { fontSize: 14, textAlign: 'center' },
 });

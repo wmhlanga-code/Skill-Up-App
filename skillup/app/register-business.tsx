@@ -10,6 +10,7 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -109,7 +110,9 @@ export default function RegisterBusinessScreen() {
     return (
       <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
         <View style={styles.successContainer}>
-          <Text style={styles.successEmoji}>🎉</Text>
+          <View style={[styles.successIcon, { backgroundColor: colors.successLight }]}>
+            <Ionicons name="checkmark-circle" size={48} color={colors.success} />
+          </View>
           <Text style={[styles.successTitle, { color: colors.textPrimary }]}>
             Business Registered!
           </Text>
@@ -118,7 +121,8 @@ export default function RegisterBusinessScreen() {
           </Text>
           <Button
             title="Go to Home"
-            onPress={() => router.replace('/(tabs)/')}
+            onPress={() => router.replace('/(tabs)/index' as never)}
+            leftIcon={<Ionicons name="home" size={18} color="#fff" />}
             style={{ marginTop: 24, minWidth: 200 }}
           />
         </View>
@@ -140,15 +144,18 @@ export default function RegisterBusinessScreen() {
           {/* Back */}
           <TouchableOpacity
             onPress={() => router.back()}
-            style={{ marginBottom: 16 }}
+            style={styles.back}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Text style={[styles.backText, { color: colors.primary }]}>← Back</Text>
+            <Ionicons name="arrow-back" size={20} color={colors.primary} />
+            <Text style={[styles.backText, { color: colors.primary }]}> Back</Text>
           </TouchableOpacity>
 
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerEmoji}>🏢</Text>
+            <View style={[styles.headerIcon, { backgroundColor: colors.primaryLight }]}>
+              <Ionicons name="business" size={32} color={colors.primary} />
+            </View>
             <Text style={[styles.title, { color: colors.textPrimary }]}>
               Register Your Business
             </Text>
@@ -169,7 +176,7 @@ export default function RegisterBusinessScreen() {
                     onChangeText={onChange}
                     onBlur={onBlur}
                     error={errors.business_name?.message}
-                    leftIcon={<Text style={{ fontSize: 16 }}>🏢</Text>}
+                    leftIcon={<Ionicons name="business-outline" size={18} color={colors.textMuted} />}
                   />
                 )}
               />
@@ -186,6 +193,7 @@ export default function RegisterBusinessScreen() {
                     <ScrollView
                       horizontal
                       showsHorizontalScrollIndicator={false}
+                      style={{ marginBottom: 4 }}
                     >
                       {BUSINESS_CATEGORIES.map((cat) => {
                         const active = value === cat;
@@ -196,21 +204,12 @@ export default function RegisterBusinessScreen() {
                             style={[
                               styles.catChip,
                               {
-                                backgroundColor: active
-                                  ? colors.primary
-                                  : colors.surface,
-                                borderColor: active
-                                  ? colors.primary
-                                  : colors.border,
+                                backgroundColor: active ? colors.primary : colors.surface,
+                                borderColor: active ? colors.primary : colors.border,
                               },
                             ]}
                           >
-                            <Text
-                              style={[
-                                styles.catLabel,
-                                { color: active ? '#fff' : colors.textPrimary },
-                              ]}
-                            >
+                            <Text style={[styles.catLabel, { color: active ? '#fff' : colors.textPrimary }]}>
                               {cat}
                             </Text>
                           </TouchableOpacity>
@@ -236,7 +235,7 @@ export default function RegisterBusinessScreen() {
                     onChangeText={onChange}
                     onBlur={onBlur}
                     error={errors.owner_name?.message}
-                    leftIcon={<Text style={{ fontSize: 16 }}>👤</Text>}
+                    leftIcon={<Ionicons name="person-outline" size={18} color={colors.textMuted} />}
                   />
                 )}
               />
@@ -252,7 +251,7 @@ export default function RegisterBusinessScreen() {
                     onBlur={onBlur}
                     error={errors.phone?.message}
                     keyboardType="phone-pad"
-                    leftIcon={<Text style={{ fontSize: 16 }}>📱</Text>}
+                    leftIcon={<Ionicons name="call-outline" size={18} color={colors.textMuted} />}
                   />
                 )}
               />
@@ -267,7 +266,7 @@ export default function RegisterBusinessScreen() {
                     onChangeText={onChange}
                     onBlur={onBlur}
                     error={errors.area_name?.message}
-                    leftIcon={<Text style={{ fontSize: 16 }}>📍</Text>}
+                    leftIcon={<Ionicons name="location-outline" size={18} color={colors.textMuted} />}
                   />
                 )}
               />
@@ -292,11 +291,10 @@ export default function RegisterBusinessScreen() {
             </View>
 
             {coordinates && (
-              <View
-                style={[styles.locationNote, { backgroundColor: colors.successLight }]}
-              >
+              <View style={[styles.locationNote, { backgroundColor: colors.successLight }]}>
+                <Ionicons name="location" size={14} color={colors.success} />
                 <Text style={[styles.locationNoteText, { color: colors.success }]}>
-                  ✅ GPS location will be saved with your business listing
+                  {' '}GPS location will be saved with your listing
                 </Text>
               </View>
             )}
@@ -318,22 +316,32 @@ export default function RegisterBusinessScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   container: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40 },
+  back: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   backText: { fontSize: 15, fontWeight: '600' },
   header: { alignItems: 'center', marginBottom: 24 },
-  headerEmoji: { fontSize: 48, marginBottom: 10 },
+  headerIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
   title: { fontSize: 24, fontWeight: '800', marginBottom: 6, textAlign: 'center' },
   subtitle: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
   fields: { gap: 16, marginBottom: 16 },
   fieldLabel: { fontSize: 13, fontWeight: '600', marginBottom: 8 },
   catChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 16,
     borderWidth: 1.5,
     marginRight: 8,
   },
-  catLabel: { fontSize: 12, fontWeight: '600' },
+  catLabel: { fontSize: 13, fontWeight: '600' },
   locationNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderRadius: 10,
     padding: 10,
     marginBottom: 12,
@@ -345,7 +353,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 40,
   },
-  successEmoji: { fontSize: 72, marginBottom: 20 },
+  successIcon: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+  },
   successTitle: { fontSize: 28, fontWeight: '900', marginBottom: 12, textAlign: 'center' },
   successSub: { fontSize: 15, textAlign: 'center', lineHeight: 22 },
 });

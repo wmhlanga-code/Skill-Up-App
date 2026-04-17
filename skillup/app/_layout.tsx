@@ -40,7 +40,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
       if (user.role === 'provider') {
         router.replace('/(provider)/dashboard');
       } else {
-        router.replace('/(tabs)/');
+        router.replace('/(tabs)/index' as never);
       }
     }
   }, [user, loading, segments]);

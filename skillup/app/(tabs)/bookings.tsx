@@ -7,6 +7,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { useSeekerBookings } from '../../hooks/useBookings';
@@ -47,7 +48,9 @@ export default function BookingsScreen() {
         ListEmptyComponent={
           !loading ? (
             <View style={styles.empty}>
-              <Text style={styles.emptyEmoji}>📋</Text>
+              <View style={[styles.emptyIcon, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons name="calendar-outline" size={36} color={colors.primary} />
+              </View>
               <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
                 No bookings yet
               </Text>
@@ -67,9 +70,16 @@ const styles = StyleSheet.create({
   container: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 },
   header: { marginBottom: 20 },
   title: { fontSize: 28, fontWeight: '900', letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, marginTop: 4 },
+  subtitle: { fontSize: 14, marginTop: 4, color: '#7A9BB5' },
   empty: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 32 },
-  emptyEmoji: { fontSize: 48, marginBottom: 16 },
+  emptyIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
   emptyTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8, textAlign: 'center' },
   emptySub: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
 });

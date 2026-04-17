@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
-import { Card } from './ui/Card';
 import type { Service } from '../types';
 
 interface ServicesListProps {
@@ -13,19 +13,31 @@ export function ServicesList({ services }: ServicesListProps) {
 
   if (services.length === 0) {
     return (
-      <Text style={[styles.empty, { color: colors.textMuted }]}>
-        No services listed yet.
-      </Text>
+      <View style={styles.empty}>
+        <Ionicons name="construct-outline" size={20} color={colors.textMuted} />
+        <Text style={[styles.emptyText, { color: colors.textMuted }]}>
+          {' '}No services listed yet.
+        </Text>
+      </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      {services.map((service) => (
+    <View>
+      {services.map((service, index) => (
         <View
           key={service.id}
-          style={[styles.row, { borderBottomColor: colors.border }]}
+          style={[
+            styles.row,
+            {
+              borderBottomColor: colors.border,
+              borderBottomWidth: index < services.length - 1 ? 1 : 0,
+            },
+          ]}
         >
+          <View style={[styles.iconBox, { backgroundColor: colors.primaryLight }]}>
+            <Ionicons name="checkmark" size={14} color={colors.primary} />
+          </View>
           <View style={styles.left}>
             <Text style={[styles.name, { color: colors.textPrimary }]}>
               {service.name}
@@ -37,11 +49,9 @@ export function ServicesList({ services }: ServicesListProps) {
             ) : null}
           </View>
           {service.price_from != null && (
-            <View
-              style={[styles.priceBadge, { backgroundColor: colors.primaryLight }]}
-            >
+            <View style={[styles.priceBadge, { backgroundColor: colors.primaryLight }]}>
               <Text style={[styles.priceText, { color: colors.primary }]}>
-                From R{service.price_from.toFixed(0)}
+                R{service.price_from.toFixed(0)}+
               </Text>
             </View>
           )}
@@ -52,22 +62,25 @@ export function ServicesList({ services }: ServicesListProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {},
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingVertical: 12,
-    borderBottomWidth: 1,
+    gap: 10,
   },
-  left: { flex: 1, marginRight: 12 },
+  iconBox: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  left: { flex: 1 },
   name: { fontSize: 15, fontWeight: '600', marginBottom: 2 },
   label: { fontSize: 12 },
-  priceBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-  },
+  priceBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
   priceText: { fontSize: 13, fontWeight: '700' },
-  empty: { fontSize: 14, textAlign: 'center', marginTop: 8 },
+  empty: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  emptyText: { fontSize: 14 },
 });

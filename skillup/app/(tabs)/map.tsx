@@ -8,12 +8,13 @@ import {
   Platform,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE, type Region } from 'react-native-maps';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../../hooks/useTheme';
 import { useLocation } from '../../hooks/useLocation';
 import { useProviders } from '../../hooks/useProviders';
 import { useStore } from '../../store/useStore';
-import { CATEGORY_EMOJIS } from '../../constants/theme';
+import { CATEGORY_ICONS } from '../../constants/theme';
 import type { NearbyProvider } from '../../types';
 
 export default function MapScreen() {
@@ -57,7 +58,9 @@ export default function MapScreen() {
     return (
       <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
         <View style={styles.noLocation}>
-          <Text style={styles.noLocationEmoji}>📍</Text>
+          <View style={[styles.noLocationIcon, { backgroundColor: colors.primaryLight }]}>
+            <Ionicons name="location-outline" size={40} color={colors.primary} />
+          </View>
           <Text style={[styles.noLocationTitle, { color: colors.textPrimary }]}>
             Location Required
           </Text>
@@ -88,15 +91,10 @@ export default function MapScreen() {
         onPress={() => setSelectedProvider(null)}
       >
         {providers.map((provider) => {
-          // PostGIS location is not returned by get_nearby_providers
-          // We show markers only for providers with valid lat/lng
-          // (They're in the DB as geometry — the RPC doesn't return them directly)
-          // For map view, use area_name as fallback label
-          const emoji = CATEGORY_EMOJIS[provider.category ?? 'Other'] ?? '⭐';
+          const iconName = (CATEGORY_ICONS[provider.category ?? 'Other'] ?? 'help-circle-outline') as keyof typeof Ionicons.glyphMap;
           return (
             <Marker
               key={provider.id}
-              // Use a slight offset from user for demo since RPC doesn't return geometry coords
               coordinate={{
                 latitude: (coordinates?.latitude ?? 0) + (Math.random() - 0.5) * 0.05,
                 longitude: (coordinates?.longitude ?? 0) + (Math.random() - 0.5) * 0.05,
@@ -107,14 +105,12 @@ export default function MapScreen() {
                 style={[
                   styles.markerBubble,
                   {
-                    backgroundColor: provider.is_available
-                      ? colors.primary
-                      : colors.textMuted,
+                    backgroundColor: provider.is_available ? colors.primary : colors.textMuted,
                     borderColor: '#fff',
                   },
                 ]}
               >
-                <Text style={{ fontSize: 14 }}>{emoji}</Text>
+                <Ionicons name={iconName} size={16} color="#fff" />
               </View>
             </Marker>
           );
@@ -129,9 +125,12 @@ export default function MapScreen() {
             { backgroundColor: colors.surface, borderColor: colors.border },
           ]}
         >
-          <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
-            🗺️ Nearby Providers
-          </Text>
+          <View style={styles.headerLeft}>
+            <Ionicons name="map" size={18} color={colors.primary} />
+            <Text style={[styles.headerTitle, { color: colors.textPrimary }]}>
+              {' '}Nearby Providers
+            </Text>
+          </View>
           <Text style={[styles.headerSub, { color: colors.textMuted }]}>
             {providers.length} found
           </Text>
@@ -143,7 +142,7 @@ export default function MapScreen() {
         style={[styles.centerBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
         onPress={centerOnUser}
       >
-        <Text style={{ fontSize: 20 }}>🎯</Text>
+        <Ionicons name="locate" size={22} color={colors.primary} />
       </TouchableOpacity>
 
       {/* Provider callout */}
@@ -157,12 +156,12 @@ export default function MapScreen() {
           activeOpacity={0.9}
         >
           <View style={styles.calloutRow}>
-            <View
-              style={[styles.calloutAvatar, { backgroundColor: colors.primaryLight }]}
-            >
-              <Text style={{ fontSize: 20 }}>
-                {CATEGORY_EMOJIS[selectedProvider.category ?? 'Other'] ?? '⭐'}
-              </Text>
+            <View style={[styles.calloutAvatar, { backgroundColor: colors.primaryLight }]}>
+              <Ionicons
+                name={(CATEGORY_ICONS[selectedProvider.category ?? 'Other'] ?? 'help-circle-outline') as keyof typeof Ionicons.glyphMap}
+                size={22}
+                color={colors.primary}
+              />
             </View>
             <View style={styles.calloutInfo}>
               <Text style={[styles.calloutName, { color: colors.textPrimary }]}>
@@ -171,11 +170,14 @@ export default function MapScreen() {
               <Text style={[styles.calloutCat, { color: colors.primary }]}>
                 {selectedProvider.category}
               </Text>
-              <Text style={[styles.calloutRating, { color: colors.textMuted }]}>
-                ★ {selectedProvider.avg_rating.toFixed(1)} · {selectedProvider.total_jobs} jobs
-              </Text>
+              <View style={styles.calloutRatingRow}>
+                <Ionicons name="star" size={12} color="#F59E0B" />
+                <Text style={[styles.calloutRating, { color: colors.textMuted }]}>
+                  {' '}{selectedProvider.avg_rating.toFixed(1)} · {selectedProvider.total_jobs} jobs
+                </Text>
+              </View>
             </View>
-            <Text style={[styles.calloutChevron, { color: colors.textMuted }]}>›</Text>
+            <Ionicons name="chevron-forward" size={20} color={colors.textMuted} />
           </View>
         </TouchableOpacity>
       )}
@@ -186,12 +188,7 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   container: { flex: 1 },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-  },
+  overlay: { position: 'absolute', top: 0, left: 0, right: 0 },
   header: {
     margin: 16,
     borderRadius: 14,
@@ -206,6 +203,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  headerLeft: { flexDirection: 'row', alignItems: 'center' },
   headerTitle: { fontSize: 16, fontWeight: '700' },
   headerSub: { fontSize: 13 },
   centerBtn: {
@@ -258,21 +256,19 @@ const styles = StyleSheet.create({
   calloutInfo: { flex: 1 },
   calloutName: { fontSize: 16, fontWeight: '700', marginBottom: 2 },
   calloutCat: { fontSize: 13, fontWeight: '600', marginBottom: 2 },
+  calloutRatingRow: { flexDirection: 'row', alignItems: 'center' },
   calloutRating: { fontSize: 12 },
-  calloutChevron: { fontSize: 24 },
-  noLocation: {
-    flex: 1,
+  noLocation: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 40 },
+  noLocationIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 40,
+    marginBottom: 20,
   },
-  noLocationEmoji: { fontSize: 56, marginBottom: 16 },
   noLocationTitle: { fontSize: 20, fontWeight: '700', marginBottom: 8 },
   noLocationSub: { fontSize: 14, textAlign: 'center', lineHeight: 20, marginBottom: 24 },
-  enableBtn: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 14,
-  },
+  enableBtn: { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 14 },
   enableBtnText: { color: '#fff', fontSize: 15, fontWeight: '600' },
 });

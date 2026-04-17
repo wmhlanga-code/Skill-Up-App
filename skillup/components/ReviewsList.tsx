@@ -1,14 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
 import type { Review } from '../types';
 
 interface ReviewsListProps {
   reviews: Review[];
-}
-
-function renderStars(rating: number) {
-  return '★'.repeat(rating) + '☆'.repeat(5 - rating);
 }
 
 function timeAgo(dateStr: string): string {
@@ -40,7 +37,10 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
         return (
           <View
             key={review.id}
-            style={[styles.card, { borderColor: colors.border, backgroundColor: colors.surface }]}
+            style={[
+              styles.card,
+              { borderColor: colors.border, backgroundColor: colors.surface },
+            ]}
           >
             <View style={styles.header}>
               {reviewer?.avatar_url ? (
@@ -49,8 +49,10 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
                   style={styles.avatar}
                 />
               ) : (
-                <View style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}>
-                  <Text style={styles.avatarLetter}>
+                <View
+                  style={[styles.avatarFallback, { backgroundColor: colors.primaryLight }]}
+                >
+                  <Text style={[styles.avatarLetter, { color: colors.primary }]}>
                     {((reviewer?.full_name as string) ?? 'A')[0].toUpperCase()}
                   </Text>
                 </View>
@@ -60,9 +62,16 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
                   {(reviewer?.full_name as string) ?? 'Anonymous'}
                 </Text>
                 <View style={styles.ratingRow}>
-                  <Text style={[styles.stars, { color: '#F59E0B' }]}>
-                    {renderStars(review.rating)}
-                  </Text>
+                  <View style={styles.stars}>
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Ionicons
+                        key={i}
+                        name={i < review.rating ? 'star' : 'star-outline'}
+                        size={12}
+                        color="#F59E0B"
+                      />
+                    ))}
+                  </View>
                   <Text style={[styles.ago, { color: colors.textMuted }]}>
                     {timeAgo(review.created_at)}
                   </Text>
@@ -82,23 +91,9 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 14,
-    borderWidth: 1,
-    padding: 14,
-    marginBottom: 10,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  avatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    marginRight: 10,
-  },
+  card: { borderRadius: 14, borderWidth: 1, padding: 14, marginBottom: 10 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  avatar: { width: 38, height: 38, borderRadius: 19, marginRight: 10 },
   avatarFallback: {
     width: 38,
     height: 38,
@@ -107,11 +102,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 10,
   },
-  avatarLetter: { fontSize: 16, fontWeight: '700', color: '#2B9EE8' },
+  avatarLetter: { fontSize: 16, fontWeight: '700' },
   headerInfo: { flex: 1 },
   reviewerName: { fontSize: 14, fontWeight: '700', marginBottom: 2 },
   ratingRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  stars: { fontSize: 13 },
+  stars: { flexDirection: 'row', gap: 1 },
   ago: { fontSize: 12 },
   comment: { fontSize: 14, lineHeight: 20 },
   empty: { fontSize: 14, textAlign: 'center', marginTop: 8 },

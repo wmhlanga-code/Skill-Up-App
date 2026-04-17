@@ -7,7 +7,9 @@ import {
   StyleSheet,
   SafeAreaView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../hooks/useAuth';
 import { useLocation } from '../../hooks/useLocation';
 import { useProviders } from '../../hooks/useProviders';
 import { useStore } from '../../store/useStore';
@@ -20,24 +22,27 @@ import type { NearbyProvider } from '../../types';
 function SkeletonCard() {
   const { colors } = useTheme();
   return (
-    <View
-      style={[
-        styles.skeleton,
-        { backgroundColor: colors.skeleton, borderColor: colors.border },
-      ]}
-    >
-      <View style={[styles.skeletonAvatar, { backgroundColor: colors.border }]} />
+    <View style={[styles.skeleton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <View style={[styles.skeletonAvatar, { backgroundColor: colors.skeleton }]} />
       <View style={styles.skeletonLines}>
-        <View style={[styles.skeletonLine, { backgroundColor: colors.border, width: '60%' }]} />
-        <View style={[styles.skeletonLine, { backgroundColor: colors.border, width: '40%', height: 10, marginTop: 6 }]} />
-        <View style={[styles.skeletonLine, { backgroundColor: colors.border, width: '80%', height: 10, marginTop: 6 }]} />
+        <View style={[styles.skeletonLine, { backgroundColor: colors.skeleton, width: '55%' }]} />
+        <View style={[styles.skeletonLine, { backgroundColor: colors.skeleton, width: '35%', height: 10, marginTop: 7 }]} />
+        <View style={[styles.skeletonLine, { backgroundColor: colors.skeleton, width: '75%', height: 10, marginTop: 7 }]} />
       </View>
     </View>
   );
 }
 
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 export default function HomeScreen() {
   const { colors } = useTheme();
+  const { user } = useAuth();
   const { coordinates, locationName, loading: locLoading, refresh: refreshLoc } = useLocation();
   const { searchQuery, selectedCategory, setSearchQuery, setSelectedCategory } = useStore();
 
@@ -58,38 +63,30 @@ export default function HomeScreen() {
   }, [refreshLoc, refresh]);
 
   const isLoading = providersLoading && providers.length === 0;
+  const firstName = user?.full_name?.split(' ')[0];
 
   const ListHeader = (
     <View style={styles.listHeader}>
+      {/* Greeting */}
       <View style={styles.greeting}>
         <Text style={[styles.greetingText, { color: colors.textMuted }]}>
-          Find services near you
+          {getGreeting()}{firstName ? `, ${firstName}` : ''}
         </Text>
         <Text style={[styles.title, { color: colors.textPrimary }]}>
-          SkillUp ⚡
+          Find a service
         </Text>
       </View>
 
-      <LocationBar
-        locationName={locationName}
-        loading={locLoading}
-        onRefresh={refreshLoc}
-      />
-
-      <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
-
-      <CategoryChips
-        selected={selectedCategory}
-        onSelect={setSelectedCategory}
-      />
+      <LocationBar locationName={locationName} loading={locLoading} onRefresh={refreshLoc} />
+      <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
+      <CategoryChips selected={selectedCategory} onSelect={setSelectedCategory} />
 
       {!isLoading && providers.length > 0 && (
-        <Text style={[styles.resultsLabel, { color: colors.textMuted }]}>
-          {providers.length} provider{providers.length !== 1 ? 's' : ''} nearby
-        </Text>
+        <View style={styles.resultsRow}>
+          <Text style={[styles.resultsLabel, { color: colors.textMuted }]}>
+            {providers.length} provider{providers.length !== 1 ? 's' : ''} nearby
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -99,9 +96,7 @@ export default function HomeScreen() {
       {isLoading ? (
         <View style={styles.container}>
           {ListHeader}
-          {[1, 2, 3, 4].map((i) => (
-            <SkeletonCard key={i} />
-          ))}
+          {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
         </View>
       ) : (
         <FlatList
@@ -121,18 +116,20 @@ export default function HomeScreen() {
           }
           ListEmptyComponent={
             <View style={styles.empty}>
-              <Text style={styles.emptyEmoji}>
-                {coordinates ? '🔍' : '📍'}
-              </Text>
+              <View style={[styles.emptyIcon, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons
+                  name={coordinates ? 'search-outline' : 'location-outline'}
+                  size={36}
+                  color={colors.primary}
+                />
+              </View>
               <Text style={[styles.emptyTitle, { color: colors.textPrimary }]}>
-                {coordinates
-                  ? 'No providers found'
-                  : 'Location needed'}
+                {coordinates ? 'No providers found' : 'Location needed'}
               </Text>
               <Text style={[styles.emptySubtitle, { color: colors.textMuted }]}>
                 {coordinates
-                  ? 'Try adjusting your search or category filter'
-                  : 'Enable location to see nearby providers'}
+                  ? 'Try a different category or clear your search'
+                  : 'Enable location access to see providers near you'}
               </Text>
             </View>
           }
@@ -144,12 +141,13 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  container: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 },
+  container: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 32 },
   listHeader: { marginBottom: 8 },
-  greeting: { marginBottom: 16 },
-  greetingText: { fontSize: 13, fontWeight: '500' },
-  title: { fontSize: 28, fontWeight: '900', letterSpacing: -0.5 },
-  resultsLabel: { fontSize: 13, fontWeight: '500', marginBottom: 10 },
+  greeting: { marginBottom: 20 },
+  greetingText: { fontSize: 14, fontWeight: '500', marginBottom: 2 },
+  title: { fontSize: 30, fontWeight: '900', letterSpacing: -0.5 },
+  resultsRow: { marginBottom: 10 },
+  resultsLabel: { fontSize: 13, fontWeight: '500' },
   skeleton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -158,23 +156,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
   },
-  skeletonAvatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    marginRight: 14,
-  },
+  skeletonAvatar: { width: 56, height: 56, borderRadius: 28, marginRight: 14 },
   skeletonLines: { flex: 1 },
-  skeletonLine: {
-    height: 14,
-    borderRadius: 7,
-  },
-  empty: {
+  skeletonLine: { height: 14, borderRadius: 7 },
+  empty: { alignItems: 'center', paddingVertical: 60, paddingHorizontal: 32 },
+  emptyIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 32,
+    justifyContent: 'center',
+    marginBottom: 16,
   },
-  emptyEmoji: { fontSize: 48, marginBottom: 16 },
   emptyTitle: { fontSize: 18, fontWeight: '700', marginBottom: 8, textAlign: 'center' },
-  emptySubtitle: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
+  emptySubtitle: { fontSize: 14, textAlign: 'center', lineHeight: 20, color: '#7A9BB5' },
 });

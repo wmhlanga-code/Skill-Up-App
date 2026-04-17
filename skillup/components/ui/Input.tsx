@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import {
   TextInput,
   View,
@@ -16,51 +16,50 @@ interface InputProps extends TextInputProps {
 }
 
 export const Input = forwardRef<TextInput, InputProps>(
-  ({ label, error, leftIcon, rightIcon, style, ...rest }, ref) => {
+  ({ label, error, leftIcon, rightIcon, style, onFocus, onBlur, ...rest }, ref) => {
     const { colors } = useTheme();
+    const [focused, setFocused] = useState(false);
+
+    const borderColor = error
+      ? colors.danger
+      : focused
+      ? colors.primary
+      : colors.border;
 
     return (
       <View style={styles.wrapper}>
         {label ? (
-          <Text
-            style={[styles.label, { color: colors.textPrimary }]}
-          >
-            {label}
-          </Text>
+          <Text style={[styles.label, { color: colors.textPrimary }]}>{label}</Text>
         ) : null}
         <View
           style={[
             styles.container,
             {
-              borderColor: error ? colors.danger : colors.border,
+              borderColor,
               backgroundColor: colors.surface,
+              shadowColor: focused ? colors.primary : 'transparent',
             },
           ]}
         >
-          {leftIcon && (
-            <View style={styles.icon}>{leftIcon}</View>
-          )}
+          {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
           <TextInput
             ref={ref}
-            style={[
-              styles.input,
-              {
-                color: colors.textPrimary,
-                flex: 1,
-              },
-              style as object,
-            ]}
+            style={[styles.input, { color: colors.textPrimary, flex: 1 }, style as object]}
             placeholderTextColor={colors.textMuted}
+            onFocus={(e) => {
+              setFocused(true);
+              onFocus?.(e);
+            }}
+            onBlur={(e) => {
+              setFocused(false);
+              onBlur?.(e);
+            }}
             {...rest}
           />
-          {rightIcon && (
-            <View style={styles.icon}>{rightIcon}</View>
-          )}
+          {rightIcon && <View style={styles.rightIcon}>{rightIcon}</View>}
         </View>
         {error ? (
-          <Text style={[styles.error, { color: colors.danger }]}>
-            {error}
-          </Text>
+          <Text style={[styles.error, { color: colors.danger }]}>{error}</Text>
         ) : null}
       </View>
     );
@@ -74,8 +73,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontWeight: '600',
-    marginBottom: 6,
-    letterSpacing: 0.2,
+    marginBottom: 7,
+    letterSpacing: 0.1,
   },
   container: {
     flexDirection: 'row',
@@ -84,15 +83,12 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 50,
     paddingHorizontal: 14,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
   },
-  input: {
-    fontSize: 15,
-    paddingVertical: 0,
-  },
-  icon: { marginRight: 8 },
-  error: {
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 2,
-  },
+  input: { fontSize: 15, paddingVertical: 0 },
+  leftIcon: { marginRight: 10 },
+  rightIcon: { marginLeft: 8 },
+  error: { fontSize: 12, marginTop: 5, marginLeft: 2 },
 });

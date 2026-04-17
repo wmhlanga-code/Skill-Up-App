@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
 
 interface Stat {
   label: string;
   value: string;
-  emoji: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  iconColor?: string;
 }
 
 interface StatsRowProps {
@@ -16,11 +18,21 @@ export function StatsRow({ stats }: StatsRowProps) {
   const { colors } = useTheme();
 
   return (
-    <View style={[styles.row, { borderColor: colors.border, backgroundColor: colors.surface }]}>
+    <View
+      style={[
+        styles.row,
+        { borderColor: colors.border, backgroundColor: colors.surface },
+      ]}
+    >
       {stats.map((s, i) => (
         <React.Fragment key={s.label}>
           <View style={styles.stat}>
-            <Text style={styles.emoji}>{s.emoji}</Text>
+            <Ionicons
+              name={s.icon}
+              size={20}
+              color={s.iconColor ?? colors.primary}
+              style={styles.icon}
+            />
             <Text style={[styles.value, { color: colors.textPrimary }]}>
               {s.value}
             </Text>
@@ -46,16 +58,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginBottom: 16,
   },
-  stat: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  emoji: { fontSize: 20, marginBottom: 4 },
+  stat: { alignItems: 'center', flex: 1 },
+  icon: { marginBottom: 4 },
   value: { fontSize: 18, fontWeight: '800', marginBottom: 2 },
   label: { fontSize: 12, fontWeight: '500' },
-  divider: {
-    width: 1,
-    borderRadius: 1,
-    marginVertical: 4,
-  },
+  divider: { width: 1, borderRadius: 1, marginVertical: 4 },
 });

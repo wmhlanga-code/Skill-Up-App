@@ -44,15 +44,28 @@ export const darkTheme = {
 
 export type ThemeColors = typeof lightTheme;
 
-export const CATEGORY_EMOJIS: Record<string, string> = {
-  Trades: '🔧',
-  Beauty: '💅',
-  Automotive: '🚗',
-  Cleaning: '🧹',
-  Tech: '💻',
-  Garden: '🌿',
-  Education: '📚',
-  Other: '⭐',
+// Icon names from @expo/vector-icons Ionicons
+export const CATEGORY_ICONS: Record<string, string> = {
+  Trades: 'construct-outline',
+  Beauty: 'cut-outline',
+  Automotive: 'car-outline',
+  Cleaning: 'water-outline',
+  Tech: 'laptop-outline',
+  Garden: 'leaf-outline',
+  Education: 'book-outline',
+  Other: 'help-circle-outline',
+};
+
+// Fallback text abbreviations used where icons can't render
+export const CATEGORY_LABELS: Record<string, string> = {
+  Trades: 'Trades',
+  Beauty: 'Beauty',
+  Automotive: 'Auto',
+  Cleaning: 'Clean',
+  Tech: 'Tech',
+  Garden: 'Garden',
+  Education: 'Edu',
+  Other: 'Other',
 };
 
 export const CATEGORIES = [

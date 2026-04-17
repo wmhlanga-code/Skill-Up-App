@@ -1,13 +1,28 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 
-function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focused: boolean }) {
+function TabIcon({
+  name,
+  focusedName,
+  label,
+  focused,
+}: {
+  name: keyof typeof Ionicons.glyphMap;
+  focusedName: keyof typeof Ionicons.glyphMap;
+  label: string;
+  focused: boolean;
+}) {
   const { colors } = useTheme();
   return (
     <View style={styles.tabIcon}>
-      <Text style={{ fontSize: 22 }}>{emoji}</Text>
+      <Ionicons
+        name={focused ? focusedName : name}
+        size={24}
+        color={focused ? colors.primary : colors.textMuted}
+      />
       <Text
         style={[
           styles.tabLabel,
@@ -41,7 +56,7 @@ export default function TabsLayout() {
         name="index"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="🏠" label="Home" focused={focused} />
+            <TabIcon name="home-outline" focusedName="home" label="Home" focused={focused} />
           ),
         }}
       />
@@ -49,7 +64,7 @@ export default function TabsLayout() {
         name="map"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="🗺️" label="Map" focused={focused} />
+            <TabIcon name="map-outline" focusedName="map" label="Map" focused={focused} />
           ),
         }}
       />
@@ -57,7 +72,15 @@ export default function TabsLayout() {
         name="bookings"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="📋" label="Bookings" focused={focused} />
+            <TabIcon name="calendar-outline" focusedName="calendar" label="Bookings" focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name="chatbubbles-outline" focusedName="chatbubbles" label="Assistant" focused={focused} />
           ),
         }}
       />
@@ -65,7 +88,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="👤" label="Profile" focused={focused} />
+            <TabIcon name="person-outline" focusedName="person" label="Profile" focused={focused} />
           ),
         }}
       />

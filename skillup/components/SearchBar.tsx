@@ -3,9 +3,9 @@ import {
   View,
   TextInput,
   TouchableOpacity,
-  Text,
   StyleSheet,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../hooks/useTheme';
 
 interface SearchBarProps {
@@ -28,7 +28,7 @@ export function SearchBar({
         { backgroundColor: colors.surface, borderColor: colors.border },
       ]}
     >
-      <Text style={styles.icon}>🔍</Text>
+      <Ionicons name="search-outline" size={18} color={colors.textMuted} style={styles.icon} />
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -40,8 +40,11 @@ export function SearchBar({
         autoCapitalize="none"
       />
       {value.length > 0 && (
-        <TouchableOpacity onPress={() => onChangeText('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Text style={[styles.clear, { color: colors.textMuted }]}>✕</Text>
+        <TouchableOpacity
+          onPress={() => onChangeText('')}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons name="close-circle" size={18} color={colors.textMuted} />
         </TouchableOpacity>
       )}
     </View>
@@ -58,18 +61,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     marginBottom: 12,
   },
-  icon: {
-    fontSize: 16,
-    marginRight: 10,
-  },
+  icon: { marginRight: 10 },
   input: {
     flex: 1,
     fontSize: 15,
     paddingVertical: 0,
-  },
-  clear: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 8,
   },
 });

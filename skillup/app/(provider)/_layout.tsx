@@ -1,13 +1,28 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 
-function TabIcon({ emoji, label, focused }: { emoji: string; label: string; focused: boolean }) {
+function TabIcon({
+  name,
+  focusedName,
+  label,
+  focused,
+}: {
+  name: keyof typeof Ionicons.glyphMap;
+  focusedName: keyof typeof Ionicons.glyphMap;
+  label: string;
+  focused: boolean;
+}) {
   const { colors } = useTheme();
   return (
     <View style={styles.tabIcon}>
-      <Text style={{ fontSize: 22 }}>{emoji}</Text>
+      <Ionicons
+        name={focused ? focusedName : name}
+        size={24}
+        color={focused ? colors.primary : colors.textMuted}
+      />
       <Text style={[styles.tabLabel, { color: focused ? colors.primary : colors.textMuted }]}>
         {label}
       </Text>
@@ -36,7 +51,7 @@ export default function ProviderLayout() {
         name="dashboard"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="📊" label="Dashboard" focused={focused} />
+            <TabIcon name="grid-outline" focusedName="grid" label="Dashboard" focused={focused} />
           ),
         }}
       />
@@ -44,7 +59,7 @@ export default function ProviderLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon emoji="🛠️" label="Profile" focused={focused} />
+            <TabIcon name="construct-outline" focusedName="construct" label="My Profile" focused={focused} />
           ),
         }}
       />

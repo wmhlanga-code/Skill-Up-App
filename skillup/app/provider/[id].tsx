@@ -19,12 +19,13 @@ import { useLocation } from '../../hooks/useLocation';
 import { createBooking } from '../../hooks/useBookings';
 import { openWhatsApp } from '../../lib/whatsapp';
 import { formatDistance } from '../../lib/location';
+import { Ionicons } from '@expo/vector-icons';
 import { StatsRow } from '../../components/StatsRow';
 import { ServicesList } from '../../components/ServicesList';
 import { ReviewsList } from '../../components/ReviewsList';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { CATEGORY_EMOJIS } from '../../constants/theme';
+import { CATEGORY_ICONS } from '../../constants/theme';
 import type { Provider } from '../../types';
 
 export default function ProviderDetailScreen() {
@@ -42,7 +43,7 @@ export default function ProviderDetailScreen() {
     return (
       <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <Text style={{ fontSize: 40 }}>⏳</Text>
+          <Ionicons name="time-outline" size={40} color={colors.textMuted} />
           <Text style={[styles.loadingText, { color: colors.textMuted }]}>
             Loading provider…
           </Text>
@@ -51,7 +52,7 @@ export default function ProviderDetailScreen() {
     );
   }
 
-  const emoji = CATEGORY_EMOJIS[provider.category ?? 'Other'] ?? '⭐';
+  const categoryIcon = (CATEGORY_ICONS[provider.category ?? 'Other'] ?? 'help-circle-outline') as keyof typeof Ionicons.glyphMap;
 
   // Compute distance from user's coordinates
   // NearbyProvider extends Provider with distance_km
@@ -62,10 +63,10 @@ export default function ProviderDetailScreen() {
       : null;
 
   const stats = [
-    { emoji: '⭐', value: provider.avg_rating.toFixed(1), label: 'Rating' },
-    { emoji: '✅', value: String(provider.total_jobs), label: 'Jobs' },
-    { emoji: '🏆', value: `${provider.years_experience}yr`, label: 'Experience' },
-    { emoji: '⏱️', value: `${provider.avg_response_minutes}m`, label: 'Response' },
+    { icon: 'star' as const,             iconColor: '#F59E0B',       value: provider.avg_rating.toFixed(1),          label: 'Rating' },
+    { icon: 'checkmark-circle' as const, iconColor: colors.success,  value: String(provider.total_jobs),             label: 'Jobs' },
+    { icon: 'trophy-outline' as const,   iconColor: colors.primary,  value: `${provider.years_experience}yr`,        label: 'Experience' },
+    { icon: 'time-outline' as const,     iconColor: colors.textMuted, value: `${provider.avg_response_minutes}m`,   label: 'Response' },
   ];
 
   async function handleShowInterest() {
@@ -87,7 +88,7 @@ export default function ProviderDetailScreen() {
       });
       setInterestSent(true);
       Alert.alert(
-        '✅ Interest Sent!',
+        'Interest Sent!',
         `${p.full_name} has been notified. They will contact you shortly.`
       );
     } catch (err: unknown) {
@@ -123,7 +124,7 @@ export default function ProviderDetailScreen() {
         style={[styles.backBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <Text style={[styles.backText, { color: colors.textPrimary }]}>←</Text>
+        <Ionicons name="arrow-back" size={20} color={colors.textPrimary} />
       </TouchableOpacity>
 
       <ScrollView
@@ -139,7 +140,7 @@ export default function ProviderDetailScreen() {
             />
           ) : (
             <View style={[styles.avatarFallback, { backgroundColor: colors.surface }]}>
-              <Text style={{ fontSize: 40 }}>{emoji}</Text>
+              <Ionicons name={categoryIcon} size={40} color={colors.primary} />
             </View>
           )}
 
@@ -149,9 +150,7 @@ export default function ProviderDetailScreen() {
 
           <View style={styles.categoryRow}>
             <View style={[styles.categoryBadge, { backgroundColor: colors.primary }]}>
-              <Text style={styles.categoryText}>
-                {emoji} {provider.category}
-              </Text>
+              <Text style={styles.categoryText}>{provider.category}</Text>
             </View>
             <View
               style={[
@@ -189,9 +188,12 @@ export default function ProviderDetailScreen() {
           </View>
 
           {distanceKm !== null && (
-            <Text style={[styles.distance, { color: colors.textMuted }]}>
-              📍 {provider.area_name ?? ''} · {formatDistance(distanceKm)}
-            </Text>
+            <View style={styles.distanceRow}>
+              <Ionicons name="location-outline" size={13} color={colors.textMuted} />
+              <Text style={[styles.distance, { color: colors.textMuted }]}>
+                {' '}{provider.area_name ?? ''} · {formatDistance(distanceKm)}
+              </Text>
+            </View>
           )}
         </View>
 
@@ -238,13 +240,8 @@ export default function ProviderDetailScreen() {
                     longitude: coordinates.longitude,
                   }}
                 >
-                  <View
-                    style={[
-                      styles.mapMarker,
-                      { backgroundColor: colors.primary },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 14 }}>{emoji}</Text>
+                  <View style={[styles.mapMarker, { backgroundColor: colors.primary }]}>
+                    <Ionicons name={categoryIcon} size={16} color="#fff" />
                   </View>
                 </Marker>
               </MapView>
@@ -280,17 +277,22 @@ export default function ProviderDetailScreen() {
         ]}
       >
         <Button
-          title="💬 Message"
+          title="Message"
           variant="secondary"
           onPress={handleMessage}
+          leftIcon={<Ionicons name="logo-whatsapp" size={18} color={colors.primary} />}
           style={{ flex: 1, marginRight: 10 }}
         />
         <Button
-          title={interestSent ? '✅ Sent!' : '⚡ Show Interest'}
+          title={interestSent ? 'Sent!' : 'Show Interest'}
           variant={interestSent ? 'ghost' : 'primary'}
           onPress={handleShowInterest}
           loading={showingInterest}
           disabled={interestSent}
+          leftIcon={interestSent
+            ? <Ionicons name="checkmark-circle" size={18} color={colors.primary} />
+            : <Ionicons name="flash" size={18} color="#fff" />
+          }
           style={{ flex: 1 }}
         />
       </View>
@@ -368,6 +370,7 @@ const styles = StyleSheet.create({
   },
   availDot: { width: 8, height: 8, borderRadius: 4 },
   availText: { fontSize: 12, fontWeight: '700' },
+  distanceRow: { flexDirection: 'row', alignItems: 'center' },
   distance: { fontSize: 13 },
   body: { paddingHorizontal: 16 },
   sectionTitle: { fontSize: 17, fontWeight: '700', marginBottom: 10 },

@@ -19,7 +19,8 @@ import { supabase } from '../../lib/supabase';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
-import { CATEGORIES, CATEGORY_EMOJIS } from '../../constants/theme';
+import { Ionicons } from '@expo/vector-icons';
+import { CATEGORIES, CATEGORY_ICONS } from '../../constants/theme';
 import type { ProviderCategory } from '../../types';
 
 const PROVIDER_CATEGORIES = CATEGORIES.filter((c) => c !== 'All') as ProviderCategory[];
@@ -136,7 +137,7 @@ export default function ProviderProfileScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <Text style={[styles.title, { color: colors.textPrimary }]}>
-          Provider Profile 🛠️
+          Provider Profile
         </Text>
         <Text style={[styles.subtitle, { color: colors.textMuted }]}>
           {provider ? 'Update your profile' : 'Complete your profile to get discovered'}
@@ -178,6 +179,7 @@ export default function ProviderProfileScreen() {
                   >
                     {PROVIDER_CATEGORIES.map((cat) => {
                       const active = value === cat;
+                      const iconName = (CATEGORY_ICONS[cat] ?? 'help-circle-outline') as keyof typeof Ionicons.glyphMap;
                       return (
                         <TouchableOpacity
                           key={cat}
@@ -190,9 +192,11 @@ export default function ProviderProfileScreen() {
                             },
                           ]}
                         >
-                          <Text style={{ fontSize: 14 }}>
-                            {CATEGORY_EMOJIS[cat]}
-                          </Text>
+                          <Ionicons
+                            name={iconName}
+                            size={14}
+                            color={active ? '#fff' : colors.textMuted}
+                          />
                           <Text
                             style={[
                               styles.catLabel,
@@ -225,7 +229,7 @@ export default function ProviderProfileScreen() {
                   onBlur={onBlur}
                   error={errors.years_experience?.message}
                   keyboardType="number-pad"
-                  leftIcon={<Text style={{ fontSize: 16 }}>🏆</Text>}
+                  leftIcon={<Ionicons name="trophy-outline" size={18} color={colors.textMuted} />}
                 />
               )}
             />
@@ -240,7 +244,7 @@ export default function ProviderProfileScreen() {
                   onChangeText={onChange}
                   onBlur={onBlur}
                   error={errors.area_name?.message}
-                  leftIcon={<Text style={{ fontSize: 16 }}>📍</Text>}
+                  leftIcon={<Ionicons name="location-outline" size={18} color={colors.textMuted} />}
                 />
               )}
             />
@@ -266,7 +270,7 @@ export default function ProviderProfileScreen() {
                   value={serviceName}
                   onChangeText={setServiceName}
                   placeholder="e.g. Plumbing repair"
-                  leftIcon={<Text style={{ fontSize: 16 }}>🔧</Text>}
+                  leftIcon={<Ionicons name="construct-outline" size={18} color={colors.textMuted} />}
                 />
                 <Input
                   label="Starting Price (R)"
@@ -274,7 +278,7 @@ export default function ProviderProfileScreen() {
                   onChangeText={setServicePrice}
                   placeholder="e.g. 250"
                   keyboardType="numeric"
-                  leftIcon={<Text style={{ fontSize: 16 }}>💰</Text>}
+                  leftIcon={<Ionicons name="cash-outline" size={18} color={colors.textMuted} />}
                 />
               </View>
               <Button
