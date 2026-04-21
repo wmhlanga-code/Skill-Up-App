@@ -95,6 +95,10 @@ skillup/
 └── supabase/          # Database migrations
 ```
 
+## Run on terminal
+
+cd "/Users/wethu/Desktop/Claude Repo/GitHub/Skill-Up-App/skillup" && npx expo start --tunnel
+
 ## Service Categories
 
 Trades · Beauty · Automotive · Cleaning · Tech · Garden · Education · Other
