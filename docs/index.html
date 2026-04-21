@@ -32,6 +32,8 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    ion-icon { pointer-events: none; }
+
     /* NAV */
     nav {
       position: fixed;
@@ -62,10 +64,11 @@
       background: var(--blue);
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
+      color: white;
+      font-size: 20px;
     }
 
-    .nav-links { display: flex; gap: 28px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
 
     .nav-links a {
       text-decoration: none;
@@ -78,6 +81,9 @@
     .nav-links a:hover { color: var(--blue); }
 
     .nav-cta {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 6px;
       background: var(--blue);
       color: white !important;
       padding: 8px 18px;
@@ -238,7 +244,7 @@
       margin-bottom: 10px;
     }
 
-    .screen-title { font-size: 11px; font-weight: 700; }
+    .screen-title { font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 3px; }
     .screen-subtitle { font-size: 8px; opacity: 0.8; }
 
     .screen-avatar {
@@ -246,7 +252,8 @@
       background: white;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 12px;
+      color: var(--blue);
+      font-size: 14px;
     }
 
     .screen-location {
@@ -259,6 +266,8 @@
       font-size: 7px;
     }
 
+    .screen-location ion-icon { font-size: 8px; }
+
     .screen-search {
       margin: 10px 14px;
       background: white;
@@ -270,6 +279,8 @@
       align-items: center;
       gap: 5px;
     }
+
+    .screen-search ion-icon { font-size: 9px; }
 
     .chips-row {
       display: flex;
@@ -286,7 +297,12 @@
       font-size: 6px;
       white-space: nowrap;
       color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
+
+    .chip ion-icon { font-size: 7px; }
 
     .chip.active {
       background: var(--blue);
@@ -316,8 +332,9 @@
       width: 36px; height: 36px;
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
+      font-size: 18px;
       flex-shrink: 0;
+      color: var(--blue);
     }
 
     .pcard-info { flex: 1; min-width: 0; }
@@ -331,7 +348,8 @@
       margin-top: 4px;
     }
 
-    .stars { font-size: 7px; color: #f59e0b; }
+    .stars { font-size: 7px; color: #f59e0b; display: flex; align-items: center; gap: 1px; }
+    .stars ion-icon { font-size: 7px; }
     .distance { font-size: 6px; color: var(--muted); }
 
     .avail-dot {
@@ -348,8 +366,8 @@
       border-top: 1px solid var(--border);
     }
 
-    .nav-icon { font-size: 14px; opacity: 0.5; }
-    .nav-icon.active { opacity: 1; }
+    .nav-icon { font-size: 16px; opacity: 0.4; color: var(--text); display: flex; align-items: center; }
+    .nav-icon.active { opacity: 1; color: var(--blue); }
 
     /* Map screen */
     .screen-map { background: #e5e7eb; position: relative; }
@@ -388,15 +406,14 @@
       font-weight: 700;
       white-space: nowrap;
       box-shadow: 0 2px 8px rgba(43,158,232,0.5);
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
 
+    .pin-bubble ion-icon { font-size: 7px; }
     .pin-bubble.green { background: #22c55e; box-shadow: 0 2px 8px rgba(34,197,94,0.5); }
     .pin-bubble.purple { background: #8b5cf6; box-shadow: 0 2px 8px rgba(139,92,246,0.5); }
-
-    .pin-tail {
-      width: 2px; height: 6px;
-      background: inherit;
-    }
 
     .map-user {
       position: absolute;
@@ -407,33 +424,6 @@
       box-shadow: 0 0 0 5px rgba(43,158,232,0.2);
     }
 
-    .map-overlay {
-      position: absolute;
-      bottom: 60px; left: 10px; right: 10px;
-      background: white;
-      border-radius: 14px;
-      padding: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    }
-
-    .map-overlay-title { font-size: 7px; font-weight: 700; margin-bottom: 6px; }
-
-    .map-mini-cards {
-      display: flex;
-      gap: 6px;
-      overflow: hidden;
-    }
-
-    .map-mini-card {
-      flex: 1;
-      background: #f8fafc;
-      border-radius: 8px;
-      padding: 6px;
-    }
-
-    .map-mini-card .name { font-size: 6.5px; font-weight: 600; }
-    .map-mini-card .cat { font-size: 5.5px; color: var(--muted); }
-
     /* Dashboard screen */
     .screen-dash { background: #f0f7ff; }
 
@@ -443,7 +433,8 @@
       color: white;
     }
 
-    .dash-greeting { font-size: 8px; opacity: 0.7; }
+    .dash-greeting { font-size: 8px; opacity: 0.7; display: flex; align-items: center; gap: 4px; }
+    .dash-greeting ion-icon { font-size: 9px; }
     .dash-name { font-size: 12px; font-weight: 800; }
 
     .dash-stats {
@@ -459,13 +450,11 @@
       padding: 8px;
     }
 
-    .stat-value { font-size: 14px; font-weight: 800; }
+    .stat-value { font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 3px; }
+    .stat-value ion-icon { font-size: 11px; color: #f59e0b; }
     .stat-label { font-size: 6px; opacity: 0.7; }
 
-    .dash-section {
-      padding: 10px 12px;
-    }
-
+    .dash-section { padding: 10px 12px; }
     .dash-section-title { font-size: 8px; font-weight: 700; margin-bottom: 8px; }
 
     .booking-req {
@@ -479,7 +468,15 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    .req-emoji { font-size: 16px; }
+    .req-icon {
+      width: 24px; height: 24px;
+      background: #eff6ff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--blue);
+      font-size: 14px;
+      flex-shrink: 0;
+    }
 
     .req-info { flex: 1; }
     .req-name { font-size: 8px; font-weight: 600; }
@@ -488,11 +485,13 @@
     .req-actions { display: flex; gap: 4px; }
 
     .req-btn {
-      padding: 3px 7px;
+      width: 20px; height: 20px;
       border-radius: 6px;
-      font-size: 6px;
+      font-size: 10px;
       font-weight: 600;
       border: none;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
     }
 
     .req-btn.accept { background: #dcfce7; color: #15803d; }
@@ -568,7 +567,6 @@
       border-radius: 20px;
       padding: 28px 24px;
       border: 1px solid var(--border);
-      position: relative;
       transition: box-shadow 0.2s;
     }
 
@@ -585,12 +583,7 @@
       margin-bottom: 16px;
     }
 
-    .step h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
+    .step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
     .step p { font-size: 0.88rem; color: var(--muted); }
 
     /* FEATURES */
@@ -615,16 +608,16 @@
     }
 
     .feature-icon {
-      font-size: 2rem;
+      width: 48px; height: 48px;
+      background: var(--blue-light);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--blue);
+      font-size: 24px;
       margin-bottom: 14px;
     }
 
-    .feature-card h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
     .feature-card p { font-size: 0.875rem; color: var(--muted); }
 
     /* CATEGORIES */
@@ -654,7 +647,14 @@
       border-color: rgba(43,158,232,0.4);
     }
 
-    .cat-emoji { font-size: 2rem; display: block; margin-bottom: 8px; }
+    .cat-icon {
+      font-size: 2rem;
+      color: var(--blue);
+      display: flex;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
     .cat-name { color: white; font-size: 0.85rem; font-weight: 600; }
     .cat-desc { color: rgba(255,255,255,0.5); font-size: 0.72rem; margin-top: 4px; }
 
@@ -695,7 +695,6 @@
     .role-card {
       border-radius: 24px;
       padding: 32px;
-      position: relative;
       overflow: hidden;
     }
 
@@ -714,13 +713,21 @@
       border: 1px solid #ddd6fe;
     }
 
-    .role-icon { font-size: 2.5rem; margin-bottom: 16px; }
-
-    .role-card h3 {
-      font-size: 1.2rem;
-      font-weight: 800;
-      margin-bottom: 8px;
+    .role-icon {
+      width: 52px; height: 52px;
+      background: white;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      color: var(--blue);
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
+
+    .role-card.provider .role-icon { color: #16a34a; }
+    .role-card.business .role-icon { color: #7c3aed; }
+
+    .role-card h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; }
 
     .role-card > p {
       font-size: 0.88rem;
@@ -734,10 +741,19 @@
       font-size: 0.85rem;
       padding: 5px 0;
       display: flex;
+      align-items: center;
       gap: 8px;
+      color: var(--text);
     }
 
-    .role-features li::before { content: "✓"; color: var(--blue); font-weight: 700; }
+    .role-features li ion-icon {
+      font-size: 16px;
+      color: var(--blue);
+      flex-shrink: 0;
+    }
+
+    .role-card.provider .role-features li ion-icon { color: #16a34a; }
+    .role-card.business .role-features li ion-icon { color: #7c3aed; }
 
     /* CTA */
     .cta-section {
@@ -805,7 +821,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: gap;
+      flex-wrap: wrap;
       gap: 16px;
     }
 
@@ -830,7 +846,7 @@
 
     footer a:hover { color: white; }
 
-    .footer-links { display: flex; gap: 20px; }
+    .footer-links { display: flex; gap: 20px; align-items: center; }
 
     /* RESPONSIVE */
     @media (max-width: 768px) {
@@ -855,7 +871,7 @@
   <!-- NAV -->
   <nav>
     <a href="#" class="nav-logo">
-      <div class="logo-icon">⚡</div>
+      <div class="logo-icon"><ion-icon name="flash"></ion-icon></div>
       SkillUp
     </a>
     <div class="nav-links">
@@ -863,19 +879,27 @@
       <a href="#features">Features</a>
       <a href="#categories">Categories</a>
       <a href="#roles">For You</a>
-      <a href="https://github.com/wmhlanga-code/Skill-Up-App" class="nav-cta">GitHub →</a>
+      <a href="https://github.com/wmhlanga-code/Skill-Up-App" class="nav-cta">
+        <ion-icon name="logo-github"></ion-icon> GitHub
+      </a>
     </div>
   </nav>
 
   <!-- HERO -->
   <section class="hero">
     <div class="hero-text">
-      <div class="badge">⚡ Now Available · South Africa</div>
+      <div class="badge">
+        <ion-icon name="flash"></ion-icon> Now Available · South Africa
+      </div>
       <h1>Find skilled help,<br /><span>right near you.</span></h1>
       <p>SkillUp connects you with trusted local professionals — plumbers, mechanics, tutors, barbers, and more — in your neighbourhood, on demand.</p>
       <div class="hero-buttons">
-        <a href="https://github.com/wmhlanga-code/Skill-Up-App" class="btn-primary">⚡ View on GitHub</a>
-        <a href="#how" class="btn-outline">How it works →</a>
+        <a href="https://github.com/wmhlanga-code/Skill-Up-App" class="btn-primary">
+          <ion-icon name="logo-github"></ion-icon> View on GitHub
+        </a>
+        <a href="#how" class="btn-outline">
+          How it works <ion-icon name="arrow-forward-outline"></ion-icon>
+        </a>
       </div>
     </div>
 
@@ -891,17 +915,17 @@
             <div class="map-road v" style="left:30%"></div>
             <div class="map-road v" style="left:65%"></div>
             <div class="map-user" style="top:45%;left:45%"></div>
-            <div class="map-pin" style="top:22%;left:20%">
-              <div class="pin-bubble">⚡ Plumber R250</div>
+            <div class="map-pin" style="top:22%;left:14%">
+              <div class="pin-bubble"><ion-icon name="flash-outline"></ion-icon> Plumber R250</div>
             </div>
-            <div class="map-pin" style="top:30%;left:58%">
-              <div class="pin-bubble green">💇 Barber R80</div>
+            <div class="map-pin" style="top:30%;left:55%">
+              <div class="pin-bubble green"><ion-icon name="cut-outline"></ion-icon> Barber R80</div>
             </div>
-            <div class="map-pin" style="top:50%;left:70%">
-              <div class="pin-bubble purple">🔧 Mechanic</div>
+            <div class="map-pin" style="top:50%;left:66%">
+              <div class="pin-bubble purple"><ion-icon name="construct-outline"></ion-icon> Mechanic</div>
             </div>
-            <div class="map-pin" style="top:60%;left:15%">
-              <div class="pin-bubble">📚 Tutor R120</div>
+            <div class="map-pin" style="top:60%;left:10%">
+              <div class="pin-bubble"><ion-icon name="book-outline"></ion-icon> Tutor R120</div>
             </div>
           </div>
         </div>
@@ -910,11 +934,13 @@
         <div class="phone phone-back2">
           <div class="screen screen-dash">
             <div class="dash-header">
-              <div class="dash-greeting">Good morning 👋</div>
+              <div class="dash-greeting">
+                <ion-icon name="sunny-outline"></ion-icon> Good morning
+              </div>
               <div class="dash-name">Provider Dashboard</div>
               <div class="dash-stats">
                 <div class="stat-card">
-                  <div class="stat-value">4.9 ⭐</div>
+                  <div class="stat-value">4.9 <ion-icon name="star"></ion-icon></div>
                   <div class="stat-label">Rating</div>
                 </div>
                 <div class="stat-card">
@@ -934,25 +960,25 @@
             <div class="dash-section">
               <div class="dash-section-title">Booking Requests (3)</div>
               <div class="booking-req">
-                <div class="req-emoji">👤</div>
+                <div class="req-icon"><ion-icon name="person-outline"></ion-icon></div>
                 <div class="req-info">
                   <div class="req-name">Thabo M.</div>
                   <div class="req-service">Electrical Wiring</div>
                 </div>
                 <div class="req-actions">
-                  <button class="req-btn accept">✓</button>
-                  <button class="req-btn decline">✗</button>
+                  <button class="req-btn accept"><ion-icon name="checkmark"></ion-icon></button>
+                  <button class="req-btn decline"><ion-icon name="close"></ion-icon></button>
                 </div>
               </div>
               <div class="booking-req">
-                <div class="req-emoji">👤</div>
+                <div class="req-icon"><ion-icon name="person-outline"></ion-icon></div>
                 <div class="req-info">
                   <div class="req-name">Nomsa K.</div>
                   <div class="req-service">Geyser Repair</div>
                 </div>
                 <div class="req-actions">
-                  <button class="req-btn accept">✓</button>
-                  <button class="req-btn decline">✗</button>
+                  <button class="req-btn accept"><ion-icon name="checkmark"></ion-icon></button>
+                  <button class="req-btn decline"><ion-icon name="close"></ion-icon></button>
                 </div>
               </div>
             </div>
@@ -965,52 +991,68 @@
             <div class="screen-header">
               <div class="screen-header-top">
                 <div>
-                  <div class="screen-title">SkillUp ⚡</div>
+                  <div class="screen-title">SkillUp <ion-icon name="flash" style="font-size:10px"></ion-icon></div>
                   <div class="screen-subtitle">Find skilled help near you</div>
                 </div>
-                <div class="screen-avatar">👤</div>
+                <div class="screen-avatar"><ion-icon name="person-outline"></ion-icon></div>
               </div>
-              <div class="screen-location">📍 Johannesburg, GP · 12 providers nearby</div>
+              <div class="screen-location">
+                <ion-icon name="location"></ion-icon> Johannesburg, GP · 12 providers nearby
+              </div>
             </div>
-            <div class="screen-search">🔍 Search plumbers, barbers, tutors…</div>
+            <div class="screen-search">
+              <ion-icon name="search-outline"></ion-icon> Search plumbers, barbers, tutors…
+            </div>
             <div class="chips-row">
               <div class="chip active">All</div>
-              <div class="chip">🔧 Trades</div>
-              <div class="chip">💇 Beauty</div>
-              <div class="chip">🚗 Auto</div>
+              <div class="chip"><ion-icon name="construct-outline"></ion-icon> Trades</div>
+              <div class="chip"><ion-icon name="cut-outline"></ion-icon> Beauty</div>
+              <div class="chip"><ion-icon name="car-outline"></ion-icon> Auto</div>
             </div>
             <div class="provider-cards">
               <div class="pcard">
-                <div class="pcard-avatar" style="background:#eff6ff;">🔧</div>
+                <div class="pcard-avatar" style="background:#eff6ff;">
+                  <ion-icon name="flash-outline"></ion-icon>
+                </div>
                 <div class="pcard-info">
                   <div class="pcard-name">Sipho Dlamini</div>
                   <div class="pcard-cat">Electrician · 8 yrs exp</div>
                   <div class="pcard-row">
-                    <span class="stars">★★★★★</span>
+                    <span class="stars">
+                      <ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon>
+                    </span>
                     <span class="distance">1.2 km</span>
                     <div class="avail-dot"></div>
                   </div>
                 </div>
               </div>
               <div class="pcard">
-                <div class="pcard-avatar" style="background:#f0fdf4;">💇</div>
+                <div class="pcard-avatar" style="background:#f0fdf4; color:#16a34a;">
+                  <ion-icon name="cut-outline"></ion-icon>
+                </div>
                 <div class="pcard-info">
                   <div class="pcard-name">Zanele Mokoena</div>
                   <div class="pcard-cat">Hair Stylist · 5 yrs exp</div>
                   <div class="pcard-row">
-                    <span class="stars">★★★★☆</span>
+                    <span class="stars">
+                      <ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star-outline" style="color:#d1d5db"></ion-icon>
+                    </span>
                     <span class="distance">0.8 km</span>
                     <div class="avail-dot"></div>
                   </div>
                 </div>
               </div>
               <div class="pcard">
-                <div class="pcard-avatar" style="background:#faf5ff;">🚗</div>
+                <div class="pcard-avatar" style="background:#faf5ff; color:#7c3aed;">
+                  <ion-icon name="car-outline"></ion-icon>
+                </div>
                 <div class="pcard-info">
                   <div class="pcard-name">Lerato Nkosi</div>
                   <div class="pcard-cat">Mechanic · 12 yrs exp</div>
                   <div class="pcard-row">
-                    <span class="stars">★★★★★</span>
+                    <span class="stars">
+                      <ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon><ion-icon name="star"></ion-icon>
+                    </span>
                     <span class="distance">2.1 km</span>
                     <div class="avail-dot"></div>
                   </div>
@@ -1018,11 +1060,11 @@
               </div>
             </div>
             <div class="screen-nav">
-              <div class="nav-icon active">🏠</div>
-              <div class="nav-icon">🗺</div>
-              <div class="nav-icon">📥</div>
-              <div class="nav-icon">🤖</div>
-              <div class="nav-icon">👤</div>
+              <div class="nav-icon active"><ion-icon name="home"></ion-icon></div>
+              <div class="nav-icon"><ion-icon name="map-outline"></ion-icon></div>
+              <div class="nav-icon"><ion-icon name="mail-outline"></ion-icon></div>
+              <div class="nav-icon"><ion-icon name="chatbubble-ellipses-outline"></ion-icon></div>
+              <div class="nav-icon"><ion-icon name="person-outline"></ion-icon></div>
             </div>
           </div>
         </div>
@@ -1064,7 +1106,7 @@
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <h3>Browse & Filter</h3>
+        <h3>Browse &amp; Filter</h3>
         <p>Filter by category, distance, rating, or price. View full profiles with services, reviews, and availability.</p>
       </div>
       <div class="step">
@@ -1086,42 +1128,42 @@
     <h2 class="section-title">Everything you need,<br />nothing you don't</h2>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon">🗺</div>
+        <div class="feature-icon"><ion-icon name="map-outline"></ion-icon></div>
         <h3>Live Map View</h3>
         <p>See providers pinned on a real-time map with their category, distance, and availability status at a glance.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">⭐</div>
-        <h3>Ratings & Reviews</h3>
+        <div class="feature-icon"><ion-icon name="star-outline"></ion-icon></div>
+        <h3>Ratings &amp; Reviews</h3>
         <p>Verified reviews from real customers. Providers build reputations over time — you always know who you're hiring.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">💬</div>
+        <div class="feature-icon"><ion-icon name="chatbubbles-outline"></ion-icon></div>
         <h3>In-App Messaging</h3>
         <p>Real-time chat between seekers and providers, with WhatsApp shortcut for those who prefer it.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🤖</div>
+        <div class="feature-icon"><ion-icon name="sparkles-outline"></ion-icon></div>
         <h3>AI Assistant</h3>
-        <p>Powered by Groq. Helps seekers describe their problem and find the right provider; helps providers write their bio and set pricing.</p>
+        <p>Powered by Groq. Helps seekers find the right provider; helps providers write their bio and set pricing.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📅</div>
+        <div class="feature-icon"><ion-icon name="calendar-outline"></ion-icon></div>
         <h3>Booking System</h3>
         <p>Providers receive booking requests with job details. Accept or decline with one tap — no back-and-forth needed.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔔</div>
+        <div class="feature-icon"><ion-icon name="notifications-outline"></ion-icon></div>
         <h3>Push Notifications</h3>
         <p>Instant alerts for new messages, booking requests, and status updates so nothing falls through the cracks.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">❤️</div>
+        <div class="feature-icon"><ion-icon name="heart-outline"></ion-icon></div>
         <h3>Favourites</h3>
         <p>Save your best providers for quick access next time. Build a personal list of trusted local professionals.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🌙</div>
+        <div class="feature-icon"><ion-icon name="moon-outline"></ion-icon></div>
         <h3>Dark Mode</h3>
         <p>Fully supported light and dark themes that follow your device preference automatically.</p>
       </div>
@@ -1135,44 +1177,44 @@
     <p class="section-body">From fixing a leaking pipe to getting your hair done — SkillUp covers the everyday services South Africans need most.</p>
     <div class="cat-grid">
       <div class="cat-tile">
-        <span class="cat-emoji">🔧</span>
+        <div class="cat-icon"><ion-icon name="construct-outline"></ion-icon></div>
         <div class="cat-name">Trades</div>
         <div class="cat-desc">Plumbers, Electricians, Carpenters</div>
       </div>
       <div class="cat-tile">
-        <span class="cat-emoji">💇</span>
+        <div class="cat-icon"><ion-icon name="cut-outline"></ion-icon></div>
         <div class="cat-name">Beauty</div>
         <div class="cat-desc">Hair, Nails, Makeup, Barbers</div>
       </div>
       <div class="cat-tile">
-        <span class="cat-emoji">🚗</span>
+        <div class="cat-icon"><ion-icon name="car-outline"></ion-icon></div>
         <div class="cat-name">Automotive</div>
         <div class="cat-desc">Mechanics, Car Wash, Panel Beaters</div>
       </div>
       <div class="cat-tile">
-        <span class="cat-emoji">🧹</span>
+        <div class="cat-icon"><ion-icon name="sparkles-outline"></ion-icon></div>
         <div class="cat-name">Cleaning</div>
         <div class="cat-desc">Domestic, Office, Carpet Cleaning</div>
       </div>
       <div class="cat-tile">
-        <span class="cat-emoji">💻</span>
+        <div class="cat-icon"><ion-icon name="laptop-outline"></ion-icon></div>
         <div class="cat-name">Tech</div>
         <div class="cat-desc">IT Support, Phone Repair, CCTV</div>
       </div>
       <div class="cat-tile">
-        <span class="cat-emoji">🌿</span>
+        <div class="cat-icon"><ion-icon name="leaf-outline"></ion-icon></div>
         <div class="cat-name">Garden</div>
         <div class="cat-desc">Gardeners, Landscapers, Tree Services</div>
       </div>
       <div class="cat-tile">
-        <span class="cat-emoji">📚</span>
+        <div class="cat-icon"><ion-icon name="book-outline"></ion-icon></div>
         <div class="cat-name">Education</div>
         <div class="cat-desc">Tutors, Driving, Music Lessons</div>
       </div>
       <div class="cat-tile">
-        <span class="cat-emoji">🛠</span>
+        <div class="cat-icon"><ion-icon name="hammer-outline"></ion-icon></div>
         <div class="cat-name">Other</div>
-        <div class="cat-desc">General Handyman & More</div>
+        <div class="cat-desc">General Handyman &amp; More</div>
       </div>
     </div>
   </section>
@@ -1183,41 +1225,41 @@
     <h2 class="section-title">Built for three types<br />of users</h2>
     <div class="roles-grid">
       <div class="role-card seeker">
-        <div class="role-icon">🔍</div>
+        <div class="role-icon"><ion-icon name="search-outline"></ion-icon></div>
         <h3>Service Seeker</h3>
         <p>Need something done? Find, vet, and hire the best local professional in minutes.</p>
         <ul class="role-features">
-          <li>Browse nearby providers on a map</li>
-          <li>Filter by category, distance & rating</li>
-          <li>Send booking requests instantly</li>
-          <li>Chat or WhatsApp providers directly</li>
-          <li>Save favourites for quick re-hiring</li>
-          <li>Leave reviews after completed jobs</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Browse nearby providers on a map</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Filter by category, distance &amp; rating</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Send booking requests instantly</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Chat or WhatsApp providers directly</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Save favourites for quick re-hiring</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Leave reviews after completed jobs</li>
         </ul>
       </div>
       <div class="role-card provider">
-        <div class="role-icon">⚡</div>
+        <div class="role-icon"><ion-icon name="flash-outline"></ion-icon></div>
         <h3>Service Provider</h3>
         <p>Skilled professional? Reach more clients in your area and grow your business.</p>
         <ul class="role-features">
-          <li>Create a verified profile with services</li>
-          <li>Toggle availability on/off anytime</li>
-          <li>Accept or decline booking requests</li>
-          <li>Dashboard: stats, views, ratings</li>
-          <li>AI assistant for bio &amp; pricing help</li>
-          <li>Real-time messages with clients</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Create a verified profile with services</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Toggle availability on/off anytime</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Accept or decline booking requests</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Dashboard: stats, views, ratings</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> AI assistant for bio &amp; pricing help</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Real-time messages with clients</li>
         </ul>
       </div>
       <div class="role-card business">
-        <div class="role-icon">🏢</div>
+        <div class="role-icon"><ion-icon name="business-outline"></ion-icon></div>
         <h3>Business Owner</h3>
         <p>Running a service business? List your company and get verified exposure to local customers.</p>
         <ul class="role-features">
-          <li>Business profile with verification</li>
-          <li>Showcase all services in one place</li>
-          <li>Manage bookings and enquiries</li>
-          <li>Build credibility with reviews</li>
-          <li>Appear in category search results</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Business profile with verification</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Showcase all services in one place</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Manage bookings and enquiries</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Build credibility with reviews</li>
+          <li><ion-icon name="checkmark-circle"></ion-icon> Appear in category search results</li>
         </ul>
       </div>
     </div>
@@ -1249,15 +1291,19 @@
     <h2>Ready to get started?</h2>
     <p>Clone the repo, add your Supabase keys, and run the app in under 5 minutes.</p>
     <div class="cta-buttons">
-      <a href="https://github.com/wmhlanga-code/Skill-Up-App" class="btn-white">⚡ Clone on GitHub</a>
-      <a href="https://github.com/wmhlanga-code/Skill-Up-App#readme" class="btn-ghost">Read the Docs →</a>
+      <a href="https://github.com/wmhlanga-code/Skill-Up-App" class="btn-white">
+        <ion-icon name="logo-github"></ion-icon> Clone on GitHub
+      </a>
+      <a href="https://github.com/wmhlanga-code/Skill-Up-App#readme" class="btn-ghost">
+        Read the Docs <ion-icon name="arrow-forward-outline"></ion-icon>
+      </a>
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer>
     <a href="#" class="logo">
-      <div class="logo-icon">⚡</div>
+      <div class="logo-icon"><ion-icon name="flash"></ion-icon></div>
       SkillUp
     </a>
     <p>© 2026 SkillUp. Built with React Native &amp; Expo.</p>
@@ -1267,5 +1313,7 @@
     </div>
   </footer>
 
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </body>
 </html>
